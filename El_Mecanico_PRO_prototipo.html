@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Mecánico PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --nav:#0E2240; --nav2:#163259; --nav-ink:#C9D6EA; --nav-dim:#7F93B3;
+  --bg:#EDF1F6; --card:#FFFFFF; --card2:#F6F8FB; --ink:#0E1A2B; --muted:#5B6B80; --line:#D8E0EA;
+  --brand:#FF6B1A; --brand-ink:#FFFFFF;
+  --motor:#FF6B1A; --elec:#E8A900; --frenos:#E5384A; --trans:#7B5CFF; --susp:#0FAFC6; --diag:#16A34A; --mant:#0E8FE0; --taller:#D6337F;
+  --ok:#16A34A; --warn:#E8A900; --bad:#E5384A;
+  --radius:14px; --shadow:0 1px 2px rgba(14,34,64,.06),0 6px 20px rgba(14,34,64,.06);
+  --head:"Saira Condensed","Arial Narrow",system-ui,sans-serif; --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+:root[data-theme="dark"]{
+  --nav:#081426; --nav2:#10213C; --bg:#0D1A2E; --card:#13243D; --card2:#182C48; --ink:#E8EEF7; --muted:#93A4BD; --line:#24395A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--head);letter-spacing:.2px;line-height:1.1;margin:0}
+h1{font-size:40px;font-weight:700}
+h2{font-size:26px;font-weight:700}
+h3{font-size:19px;font-weight:600}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+
+/* ---------- acceso ---------- */
+#auth{position:fixed;inset:0;display:grid;grid-template-columns:1.1fr 1fr;background:var(--nav);z-index:50}
+.auth-art{position:relative;overflow:hidden;color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between}
+.auth-art svg.bg{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.auth-art .brandmark,.auth-art .pitch{position:relative}
+.pitch h1{font-size:54px;max-width:12ch}
+.pitch p{color:var(--nav-ink);max-width:42ch;font-size:17px}
+.auth-panel{background:var(--card);display:flex;align-items:center;justify-content:center;padding:32px}
+.auth-box{width:100%;max-width:380px}
+.auth-tabs{display:flex;gap:4px;background:var(--card2);padding:4px;border-radius:12px;margin:22px 0}
+.auth-tabs button{flex:1;border:0;background:none;padding:10px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--muted)}
+.auth-tabs button.on{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.field input,.field select,.field textarea{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:11px 12px;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand)}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .08s,filter .15s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--brand);color:var(--brand-ink)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-ghost{background:var(--card2);color:var(--ink);border:1px solid var(--line)}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:8px}
+.err{color:var(--bad);font-size:14px;min-height:20px}
+.note{font-size:12.5px;color:var(--muted);margin-top:14px}
+
+/* ---------- estructura ---------- */
+#app{display:grid;grid-template-columns:272px 1fr;min-height:100vh}
+#app.collapsed{grid-template-columns:76px 1fr}
+aside{background:var(--nav);color:var(--nav-ink);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.logo{display:flex;align-items:center;gap:12px;padding:20px 18px 16px;text-decoration:none}
+.logo .mark{width:40px;height:40px;border-radius:11px;background:var(--brand);display:grid;place-items:center;flex:none}
+.logo b{font-family:var(--head);font-size:22px;color:#fff;letter-spacing:.3px;white-space:nowrap}
+.logo small{display:block;color:var(--nav-dim);font-size:12px;white-space:nowrap}
+nav{flex:1;overflow-y:auto;padding:6px 10px 16px;scrollbar-width:thin;scrollbar-color:var(--nav2) transparent}
+.grp{margin-bottom:2px}
+.grp>button{width:100%;display:flex;align-items:center;gap:12px;background:none;border:0;color:var(--nav-ink);padding:10px 10px;border-radius:10px;cursor:pointer;text-align:left;font-weight:500}
+.grp>button:hover{background:var(--nav2)}
+.grp>button .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.06)}
+.grp>button .ic svg{width:18px;height:18px}
+.grp>button .lbl{flex:1;white-space:nowrap}
+.grp>button .chev{transition:transform .2s;opacity:.6}
+.grp.open>button .chev{transform:rotate(90deg)}
+.grp.active>button{color:#fff}
+.grp.active>button .ic{background:var(--c,var(--brand));color:#fff}
+.sub{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease}
+.grp.open .sub{grid-template-rows:1fr}
+.sub>div{overflow:hidden}
+.sub a{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 52px;border-radius:9px;text-decoration:none;color:var(--nav-dim);font-size:14px;position:relative}
+.sub a:hover{color:#fff;background:rgba(255,255,255,.04)}
+.sub a.on{color:#fff;background:rgba(255,255,255,.07)}
+.sub a.on::before{content:"";position:absolute;left:38px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--c,var(--brand))}
+.sub a .soon{margin-left:auto;font-size:10.5px;background:rgba(255,255,255,.08);padding:1px 7px;border-radius:20px}
+#app.collapsed .lbl,#app.collapsed .chev,#app.collapsed .sub,#app.collapsed .logo span,#app.collapsed .side-foot span{display:none}
+.side-foot{padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px}
+.side-foot button{background:var(--nav2);border:0;color:var(--nav-ink);border-radius:9px;padding:8px 10px;cursor:pointer;display:flex;gap:8px;align-items:center;font-size:13px}
+
+main{min-width:0;display:flex;flex-direction:column}
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:12px 26px}
+.menu-btn{display:none;background:var(--card);border:1px solid var(--line);border-radius:10px;width:40px;height:40px;cursor:pointer}
+.vehchip{text-decoration:none;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px 6px 6px;cursor:pointer;min-width:0;max-width:300px}
+.vehchip .sw{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-family:var(--head);font-weight:700;flex:none}
+.vehchip div{min-width:0}
+.vehchip b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vehchip small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{flex:1;position:relative;max-width:560px}
+.search input{width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 14px 10px 40px;outline:none}
+.search input:focus{border-color:var(--brand)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px;background:var(--card2)}
+.results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);max-height:420px;overflow:auto;padding:6px}
+.results a{display:flex;gap:12px;align-items:center;padding:9px 10px;border-radius:9px;text-decoration:none}
+.results a:hover,.results a.sel{background:var(--card2)}
+.results .tag{font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px;flex:none;font-family:var(--head);letter-spacing:.4px}
+.results .grp-t{font-size:12px;color:var(--muted);padding:8px 10px 4px}
+.user{margin-left:auto;display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:0}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--nav);color:#fff;display:grid;place-items:center;font-weight:700;font-family:var(--head);font-size:17px}
+.crumbs{padding:16px 30px 0;font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.crumbs a{text-decoration:none}.crumbs a:hover{color:var(--ink)}
+#view{padding:14px 30px 60px;max-width:1280px;width:100%}
+.view-enter{animation:enter .28s ease}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pad{padding:22px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border-radius:20px;padding:3px 10px;background:var(--card2);border:1px solid var(--line)}
+
+/* ---------- inicio ---------- */
+.hero{position:relative;overflow:hidden;border-radius:20px;background:var(--nav);color:#fff;padding:30px 32px 26px;margin-top:6px}
+.hero h1{font-size:44px;max-width:16ch}
+.hero p{color:var(--nav-ink);margin:8px 0 0;max-width:52ch}
+.hero .gears{position:absolute;right:-30px;top:-40px;width:360px;height:360px;opacity:.95}
+.finder{position:relative;margin-top:22px;display:grid;grid-template-columns:repeat(4,1fr) auto;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:12px;border-radius:14px}
+.finder label{font-size:12px;color:var(--nav-dim);display:block;margin:0 0 4px 2px}
+.finder select{width:100%;background:#fff;color:#0E1A2B;border:0;border-radius:9px;padding:11px 10px}
+.finder select:disabled{opacity:.55}
+.finder .btn{align-self:end;height:44px}
+.sys-tile{display:flex;flex-direction:column;gap:10px;padding:18px;text-decoration:none;border-radius:var(--radius);background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
+.sys-tile:hover{border-color:var(--c);transform:translateY(-2px)}
+.sys-tile .ic{width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);display:grid;place-items:center}
+.sys-tile .ic svg{width:24px;height:24px}
+.sys-tile b{font-family:var(--head);font-size:19px}
+.sys-tile small{color:var(--muted)}
+.sys-tile .bar{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.sect-h{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 12px}
+.recent{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.recent a{flex:none;text-decoration:none;min-width:220px}
+
+/* ---------- vehículos ---------- */
+.brands{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.brand{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--line);cursor:pointer;text-align:left;transition:border-color .15s}
+.brand:hover,.brand.on{border-color:var(--bc)}
+.brand .sw{width:40px;height:40px;border-radius:10px;background:var(--bc);color:#fff;display:grid;place-items:center;font-family:var(--head);font-weight:700;font-size:17px;flex:none}
+.steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0 18px}
+.steps span{font-size:13px;padding:5px 12px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+.steps span.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.steps span.done{color:var(--ink)}
+.opt-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.opt{padding:16px;border-radius:12px;background:var(--card);border:1px solid var(--line);cursor:pointer;text-align:left}
+.opt:hover{border-color:var(--brand)}
+.opt b{font-family:var(--head);font-size:20px;display:block}
+.veh-head{display:flex;gap:20px;align-items:center;padding:22px;border-radius:18px;background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden}
+.veh-head .sw{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;color:#fff;font-family:var(--head);font-size:26px;font-weight:700;flex:none}
+.veh-head .stripe{position:absolute;right:0;top:0;bottom:0;width:38%;opacity:.07}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:20px 0 18px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:11px 14px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-color:var(--brand)}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{text-align:left;font-weight:600;color:var(--muted);font-size:12.5px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--card2)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dot.y{background:var(--brand)}
+.slot{border:1.5px dashed var(--line);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+
+/* ---------- diagrama ---------- */
+.diagram-wrap{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+.stage{position:relative;background:radial-gradient(circle at 50% 40%,var(--card) 0,var(--card2) 70%);border-radius:18px;border:1px solid var(--line);overflow:hidden}
+.stage svg{display:block;width:100%;height:auto}
+.stage .tools{position:absolute;left:14px;top:14px;display:flex;gap:6px}
+.part{cursor:pointer;transition:filter .2s,opacity .2s}
+.part .hl{fill:none;stroke:var(--c);stroke-width:0;transition:stroke-width .2s}
+.part:hover .hl{stroke-width:3}
+.part.sel .hl{stroke-width:5}
+.stage.focus .part:not(.sel){opacity:.28}
+.part.sel{filter:drop-shadow(0 0 10px var(--c))}
+.mark-lbl{font-family:var(--head);font-size:15px;font-weight:600;fill:var(--ink)}
+.tag-callout rect{fill:var(--ink)}
+.tag-callout text{fill:var(--bg);font-family:var(--head);font-size:14px;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.spin .rot{animation:rot var(--d) linear infinite;transform-box:fill-box;transform-origin:center}}
+@keyframes rot{to{transform:rotate(360deg)}}
+.info h3{display:flex;gap:10px;align-items:center}
+.info .k{font-size:12.5px;font-weight:700;color:var(--muted);margin:14px 0 4px}
+.info ul{margin:0;padding-left:18px}
+.proc{margin-top:16px}
+.proc-bar{height:6px;background:var(--card2);border-radius:6px;overflow:hidden;margin:10px 0 14px}
+.proc-bar i{display:block;height:100%;background:var(--brand);transition:width .3s}
+.proc-step b.n{font-family:var(--head);font-size:44px;color:var(--brand);line-height:1}
+.warnbox{border-left:4px solid var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent);padding:10px 12px;border-radius:8px;font-size:14px;margin-top:12px}
+.tipbox{border-left:4px solid var(--diag);background:color-mix(in srgb,var(--diag) 10%,transparent);padding:10px 12px;border-radius:8px;font-size:14px;margin-top:12px}
+
+/* ---------- DTC ---------- */
+.dtc-search{display:flex;gap:10px;margin:8px 0 16px}
+.dtc-search input{flex:1;font-family:var(--head);font-size:26px;letter-spacing:1px;padding:12px 16px;border:2px solid var(--line);border-radius:14px;background:var(--card);outline:none;text-transform:uppercase}
+.dtc-search input:focus{border-color:var(--diag)}
+.letters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.letters button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:6px 14px;cursor:pointer;font-weight:600;font-size:13px}
+.letters button.on{background:var(--ink);color:var(--bg)}
+.dtc-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.dtc-item{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);text-decoration:none}
+.dtc-item:hover{border-color:var(--diag)}
+.code{font-family:var(--head);font-weight:700;font-size:20px;color:#fff;background:var(--diag);border-radius:8px;padding:2px 9px;flex:none}
+.code.B{background:var(--trans)}.code.C{background:var(--frenos)}.code.U{background:var(--mant)}
+.dtc-detail .code{font-size:34px;padding:4px 14px}
+.diff{font-weight:700}.diff.Baja{color:var(--ok)}.diff.Media{color:var(--warn)}.diff.Alta{color:var(--bad)}
+ol.steps-list{counter-reset:s;list-style:none;padding:0;margin:0}
+ol.steps-list li{counter-increment:s;position:relative;padding:8px 0 8px 40px;border-bottom:1px dashed var(--line)}
+ol.steps-list li::before{content:counter(s);position:absolute;left:0;top:7px;width:26px;height:26px;border-radius:8px;background:var(--diag);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+
+/* ---------- flujo ---------- */
+.flow-card{max-width:760px}
+.q{font-family:var(--head);font-size:30px;font-weight:600;line-height:1.15;margin:8px 0 22px}
+.yn{display:flex;gap:12px;flex-wrap:wrap}
+.yn .btn{min-width:150px;padding:14px 22px;font-size:16px}
+.btn-yes{background:var(--ok);color:#fff}.btn-no{background:var(--bad);color:#fff}
+.trail{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+.trail span{font-size:12.5px;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:3px 10px}
+.kind{font-size:12.5px;font-weight:700;border-radius:20px;padding:3px 10px;color:#fff;display:inline-block}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;opacity:0;transition:.25s;z-index:80;font-weight:600}
+#toast.on{opacity:1;transform:translateX(-50%)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1050px){.g4{grid-template-columns:repeat(2,1fr)}.diagram-wrap{grid-template-columns:1fr}.g3{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:820px){
+  #app,#app.collapsed{grid-template-columns:1fr}
+  aside{position:fixed;left:0;top:0;bottom:0;width:282px;z-index:40;transform:translateX(-100%);transition:transform .25s}
+  #app.mob-open aside{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.4)}
+  .menu-btn{display:grid;place-items:center}
+  .vehchip{display:none}
+  #auth{grid-template-columns:1fr}.auth-art{display:none}
+  .finder{grid-template-columns:1fr 1fr}.finder .btn{grid-column:1/-1}
+  #view{padding:12px 16px 50px}.crumbs{padding:12px 16px 0}header.top{padding:10px 16px}
+  .hero h1{font-size:34px}.hero .gears{opacity:.25}
+  .g2,.g3{grid-template-columns:1fr}
+  .search kbd{display:none}
+}
+@media print{aside,header.top,.crumbs{display:none}#app{display:block}}
+</style>
+</head>
+<body>
+
+<!-- ================= ACCESO ================= -->
+<section id="auth" class="hidden" aria-label="Acceso">
+  <div class="auth-art">
+    <svg class="bg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true" id="authArt"></svg>
+    <div class="brandmark logo" style="padding:0">
+      <div class="mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></div>
+      <span><b>El Mecánico PRO</b><small>Sistema de información para el taller</small></span>
+    </div>
+    <div class="pitch">
+      <h1>Encuentra la falla. Repara con método.</h1>
+      <p>Busca por marca, modelo, año y motor. Consulta diagramas interactivos, códigos DTC y procedimientos paso a paso desde cualquier dispositivo.</p>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-box">
+      <h2 id="authTitle">Entra a tu taller</h2>
+      <p class="muted" style="margin:6px 0 0">Tu cuenta guarda tus vehículos, notas e historial.</p>
+      <div class="auth-tabs" role="tablist">
+        <button class="on" data-tab="login" role="tab">Iniciar sesión</button>
+        <button data-tab="signup" role="tab">Crear cuenta</button>
+      </div>
+      <div id="loginForm">
+        <div class="field"><label for="lEmail">Correo electrónico</label><input id="lEmail" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="lPass">Contraseña</label><input id="lPass" type="password" required autocomplete="current-password"></div>
+        <div class="err" id="lErr"></div>
+        <button type="button" class="btn btn-primary" id="loginBtn" style="width:100%">Iniciar sesión</button>
+      </div>
+      <div id="signupForm" class="hidden">
+        <div class="field"><label for="sName">Nombre</label><input id="sName" required autocomplete="name"></div>
+        <div class="field"><label for="sShop">Nombre del taller</label><input id="sShop" placeholder="Opcional"></div>
+        <div class="field"><label for="sCountry">País</label>
+          <select id="sCountry"><option>México</option><option>Colombia</option><option>Perú</option><option>Chile</option><option>Argentina</option><option>Ecuador</option><option>Guatemala</option><option>Bolivia</option><option>Venezuela</option><option>República Dominicana</option><option>Otro</option></select></div>
+        <div class="field"><label for="sEmail">Correo electrónico</label><input id="sEmail" type="email" required autocomplete="email"></div>
+        <div class="field"><label for="sPass">Contraseña (mínimo 6 caracteres)</label><input id="sPass" type="password" minlength="6" required autocomplete="new-password"></div>
+        <div class="err" id="sErr"></div>
+        <button type="button" class="btn btn-primary" id="signupBtn" style="width:100%">Crear cuenta</button>
+      </div>
+      <div class="warnbox hidden" id="previewWarn" style="margin-top:14px">Estás en una vista previa: puedes probar todo, pero la cuenta no se guardará al cerrar. Para usarla de verdad, descarga el archivo y ábrelo en Chrome, Edge o Safari.</div>
+      <p class="note">Tu cuenta y tus datos se guardan en este dispositivo y navegador.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SISTEMA ================= -->
+<div id="app" class="hidden">
+  <aside>
+    <a class="logo" href="#/inicio">
+      <div class="mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></div>
+      <span><b>El Mecánico PRO</b><small>Sistema de taller</small></span>
+    </a>
+    <nav id="nav" aria-label="Menú principal"></nav>
+    <div class="side-foot">
+      <button id="collapseBtn" title="Contraer menú"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg><span>Contraer</span></button>
+      <button id="themeBtn" title="Cambiar tema"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Tema</span></button>
+    </div>
+  </aside>
+  <main>
+    <header class="top">
+      <button class="menu-btn" id="mobBtn" aria-label="Abrir menú"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <a class="vehchip" id="vehChip" href="#/vehiculos"></a>
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" placeholder="Busca marca, modelo, código P0300, síntoma, pieza…" autocomplete="off" aria-label="Buscar">
+        <kbd>/</kbd>
+        <div class="results hidden" id="results"></div>
+      </div>
+      <button class="user" id="userBtn" aria-label="Mi cuenta"><span class="avatar" id="avatar">?</span></button>
+    </header>
+    <div class="crumbs" id="crumbs"></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+/* ======================== DATOS ======================== */
+const DATA = {"codes": [{"c": "P0101", "t": "MAF: rango o rendimiento", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "La lectura del MAF no cuadra con RPM, acelerador y MAP.", "sin": "Tirones; falta de fuerza.", "cau": ["MAF sucio", "entrada de aire después del MAF", "filtro mal asentado", "MAF dañado."], "dia": ["Revisa filtro y ductos", "Compara los g/s en ralentí con el típico", "Limpia el sensor y repite la prueba."], "sol": "Corrige fugas; limpia o cambia el MAF.", "dif": "Baja", "her": "escáner, limpiador de MAF.", "tip": "Orientativo: en ralentí, cerca de 1 g/s por litro de cilindrada."}, {"c": "P0102", "t": "MAF: entrada baja", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "Señal del MAF bajo el mínimo: abierto, corto a masa o sin alimentación.", "sin": "Arranca y se apaga; modo de emergencia.", "cau": ["conector suelto", "cable de señal cortado", "fusible de alimentación", "MAF dañado."], "dia": ["Revisa conector y arnés", "Mide alimentación y masa", "Mide la señal en ralentí y la continuidad a la computadora."], "sol": "Repara cableado; cambia el MAF si el circuito está sano.", "dif": "Baja", "her": "escáner, multímetro.", "tip": "Muchos MAF dan frecuencia, no voltaje: mide en Hz."}, {"c": "P0103", "t": "MAF: entrada alta", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "Señal del MAF sobre el máximo; suele ser corto a voltaje o masa mala.", "sin": "Mezcla rica; humo negro.", "cau": ["señal en corto con alimentación", "masa deficiente", "MAF dañado", "interferencia de encendido."], "dia": ["Busca roces en el arnés", "Mide caída de voltaje en la masa", "Desconecta el MAF: el código debe pasar a P0102."], "sol": "Repara corto o masa; cambia el MAF si el circuito está bien.", "dif": "Baja", "her": "escáner, multímetro.", "tip": "Con motor apagado el MAF debe leer casi cero."}, {"c": "P0106", "t": "MAP o barométrico: rango o rendimiento", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "El MAP no coincide con lo esperado para carga y RPM.", "sin": "Tirones; ralentí irregular.", "cau": ["manguera del MAP rota o tapada", "entrada de aire", "sensor desplazado", "vacío bajo por falla mecánica."], "dia": ["Motor apagado: MAP igual a barométrica", "Revisa la toma", "Compara con vacuómetro."], "sol": "Corrige manguera o fuga; cambia el MAP si no coincide.", "dif": "Media", "her": "escáner, vacuómetro.", "tip": "Vacío bajo y oscilante: el MAP dice la verdad, falla el motor."}, {"c": "P0107", "t": "MAP: entrada baja", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "Voltaje del MAP bajo el mínimo: abierto, a masa o sin referencia.", "sin": "Poca fuerza; modo de emergencia.", "cau": ["falta de referencia de 5 V", "señal abierta o a masa", "conector suelto", "MAP dañado."], "dia": ["Mide referencia y masa", "Mide la señal sin vacío (típico 4–4.5 V)", "Si falta referencia, desconecta los sensores que la comparten."], "sol": "Repara cableado o el sensor que tumba la referencia.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Con P0122 y P0117 a la vez, revisa la referencia (P0641)."}, {"c": "P0108", "t": "MAP: entrada alta", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "Voltaje del MAP sobre el máximo esperado.", "sin": "Mezcla rica; humo negro.", "cau": ["manguera desconectada", "masa abierta", "señal en corto con voltaje", "MAP dañado."], "dia": ["Verifica la manguera", "Mide la masa", "Aplica vacío con bomba manual: la señal debe bajar."], "sol": "Reconecta la manguera; repara masa; cambia el MAP.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Una masa abierta sube la señal casi hasta 5 V."}, {"c": "P0113", "t": "IAT: entrada alta", "s": "Motor / Admisión", "g": "Mezcla aire-combustible y medición de aire", "sig": "La computadora ve aire muy frío; suele ser circuito abierto.", "sin": "Luz de check; leve aumento de consumo.", "cau": ["conector suelto", "cable abierto", "IAT abierto", "pines dañados en el MAF (si va integrado)."], "dia": ["En frío, IAT similar al ambiente", "Cerca de -40 °C indica abierto", "Puentea el conector: la lectura debe saltar."], "sol": "Repara conector o cable; cambia el IAT o el MAF integrado.", "dif": "Baja", "her": "escáner, multímetro.", "tip": "Tras una noche fría, IAT y ECT deben marcar casi igual."}, {"c": "P0117", "t": "ECT: entrada baja", "s": "Motor / Refrigeración", "g": "Mezcla aire-combustible y medición de aire", "sig": "Voltaje muy bajo del sensor de refrigerante: la computadora ve motor muy caliente.", "sin": "Ventilador siempre encendido; arranque difícil en frío.", "cau": ["señal en corto a masa", "ECT en corto interno", "refrigerante en el conector."], "dia": ["Compara con termómetro infrarrojo", "Desconecta el sensor: debe caer a -40 °C", "Si no cae, busca el corto en el cable."], "sol": "Cambia el sensor o repara el cable.", "dif": "Baja", "her": "escáner, multímetro.", "tip": "Mide con infrarrojo en la carcasa del termostato."}, {"c": "P0118", "t": "ECT: entrada alta", "s": "Motor / Refrigeración", "g": "Mezcla aire-combustible y medición de aire", "sig": "Voltaje muy alto del ECT: la computadora ve motor muy frío, casi siempre abierto.", "sin": "Consumo alto; humo negro.", "cau": ["conector suelto", "cable cortado", "ECT abierto", "masa abierta."], "dia": ["Cerca de -40 °C indica abierto", "Puentea el conector: si sube, el sensor está abierto", "Si no, revisa el cable."], "sol": "Cambia el sensor o repara el circuito.", "dif": "Baja", "her": "escáner, multímetro.", "tip": "Purga el aire tras cambiar el sensor; una burbuja da lecturas falsas."}, {"c": "P0122", "t": "TPS A: entrada baja", "s": "Motor / Acelerador", "g": "Mezcla aire-combustible y medición de aire", "sig": "Señal del TPS A bajo el mínimo: abierto, a masa o sin referencia.", "sin": "Aceleración pobre; modo de emergencia.", "cau": ["conector flojo", "cable abierto", "falta de 5 V", "TPS gastado."], "dia": ["Mide referencia y masa", "Mariposa cerrada: típico 0.5–1 V", "Abre despacio y mira en osciloscopio que suba sin cortes."], "sol": "Repara cableado; cambia TPS o cuerpo y haz reaprendizaje.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Los huecos de un TPS gastado solo se ven en osciloscopio."}, {"c": "P0123", "t": "TPS A: entrada alta", "s": "Motor / Acelerador", "g": "Mezcla aire-combustible y medición de aire", "sig": "Señal del TPS A sobre el máximo esperado.", "sin": "Ralentí alto; cambios bruscos.", "cau": ["masa abierta", "señal en corto con 5 V", "TPS dañado", "humedad en el conector."], "dia": ["Mide la masa", "Señal cerca de 5 V con mariposa cerrada indica masa abierta", "Desconecta: debe pasar a P0122."], "sol": "Repara masa o corto; cambia el TPS y haz reaprendizaje.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Tras limpiar un cuerpo electrónico, haz siempre el reaprendizaje."}, {"c": "P0131", "t": "O2 B1S1: voltaje bajo", "s": "Motor / Emisiones", "g": "Mezcla aire-combustible y medición de aire", "sig": "El O2 anterior se queda en voltaje bajo (lectura pobre) demasiado tiempo.", "sin": "Luz de check; ajustes positivos.", "cau": ["fuga de escape antes del sensor", "mezcla pobre real", "sensor viejo", "señal a masa."], "dia": ["Típico: oscila 0.1–0.9 V", "Busca fugas de escape", "Enriquece con propano: si sube, el sensor sirve."], "sol": "Corrige la fuga o la mezcla; cambia el sensor si no responde.", "dif": "Media", "her": "escáner, osciloscopio.", "tip": "Las fugas del múltiple silban más en frío."}, {"c": "P0133", "t": "O2 B1S1: respuesta lenta", "s": "Motor / Emisiones", "g": "Mezcla aire-combustible y medición de aire", "sig": "El O2 anterior cambia de rico a pobre más lento de lo aceptado.", "sin": "Luz de check; consumo algo alto.", "cau": ["sensor envejecido", "contaminación por aceite o refrigerante", "fuga de escape", "calefactor débil."], "dia": ["A 2.500 RPM debe cruzar 0.45 V varias veces por segundo", "Haz golpes de acelerador", "Inspecciona la punta."], "sol": "Cambia el sensor y corrige la contaminación.", "dif": "Baja", "her": "escáner con gráfica, dado para O2.", "tip": "Punta blanca arenosa: revisa el empaque de culata."}, {"c": "P0135", "t": "Calefactor O2 B1S1", "s": "Motor / Emisiones", "g": "Mezcla aire-combustible y medición de aire", "sig": "El calefactor del O2 anterior no consume la corriente esperada o su circuito falla.", "sin": "Tarda en entrar en lazo cerrado; consumo alto en frío.", "cau": ["calefactor quemado", "fusible fundido", "cable quemado por el escape", "conector derretido."], "dia": ["Revisa el fusible", "Mide 12 V de alimentación", "Mide la resistencia del calefactor (pocos ohmios, según fabricante)."], "sol": "Cambia el sensor o repara cable y fusible.", "dif": "Baja", "her": "multímetro, dado para O2.", "tip": "Si el fusible vuelve a fundirse, hay corto en el cable."}, {"c": "P0141", "t": "Calefactor O2 B1S2", "s": "Motor / Emisiones", "g": "Mezcla aire-combustible y medición de aire", "sig": "Falla en el circuito del calefactor del O2 posterior al catalizador.", "sin": "Luz de check; monitor del catalizador incompleto.", "cau": ["calefactor abierto", "conector bajo el auto corroído", "cable roto", "fusible fundido."], "dia": ["Inspecciona el conector", "Mide la alimentación", "Mide la resistencia del calefactor."], "sol": "Cambia el sensor o repara el circuito.", "dif": "Baja", "her": "multímetro, elevador o torres.", "tip": "Pon grasa dieléctrica al reconectar."}, {"c": "P0171", "t": "Sistema pobre, banco 1", "s": "Motor / Mezcla", "g": "Mezcla aire-combustible y medición de aire", "sig": "Ajuste del banco 1 al límite positivo: se agrega combustible y sigue pobre.", "sin": "Ralentí inestable; tirones.", "cau": ["entrada de aire falso", "MAF sucio", "presión de combustible baja", "inyectores tapados."], "dia": ["Compara ajustes en ralentí y a 2.500 RPM", "Prueba de humo", "Mide presión de combustible."], "sol": "Corrige la causa, borra ajustes y prueba en ruta.", "dif": "Media", "her": "escáner, máquina de humo.", "tip": "P0171 con P0174 indica causa común a ambos bancos."}, {"c": "P0172", "t": "Sistema rico, banco 1", "s": "Motor / Mezcla", "g": "Mezcla aire-combustible y medición de aire", "sig": "Ajuste del banco 1 al límite negativo: se quita combustible y sigue rica.", "sin": "Consumo alto; olor a combustible.", "cau": ["inyector goteando", "presión alta", "MAF que mide de más", "purga EVAP abierta."], "dia": ["Mide presión y caída al apagar", "Pinza la purga EVAP", "Huele el aceite."], "sol": "Cambia la pieza con falla y el aceite si está diluido.", "dif": "Media", "her": "escáner, manómetro.", "tip": "En recorridos cortos, el aceite diluido enriquece por la PCV."}, {"c": "P0174", "t": "Sistema pobre, banco 2", "s": "Motor / Mezcla", "g": "Mezcla aire-combustible y medición de aire", "sig": "Igual que P0171, en el banco 2 (motores en V o bóxer).", "sin": "Ralentí irregular; fallas en cilindros del banco 2.", "cau": ["entrada de aire en el banco 2", "MAF sucio", "presión baja", "inyectores sucios."], "dia": ["Mira si hay P0171", "Compara ajustes de ambos bancos", "Prueba de humo en el banco 2."], "sol": "Corrige la falla del banco o la común.", "dif": "Media", "her": "escáner, máquina de humo.", "tip": "En V6, los empaques de admisión se rajan con el calor."}, {"c": "P0175", "t": "Sistema rico, banco 2", "s": "Motor / Mezcla", "g": "Mezcla aire-combustible y medición de aire", "sig": "Igual que P0172, en el banco 2.", "sin": "Consumo alto; bujías del banco 2 negras.", "cau": ["inyector del banco 2 goteando", "presión alta", "O2 del banco 2 falso", "purga abierta."], "dia": ["Mira si hay P0172", "Compara bancos", "Revisa inyectores y O2 del banco 2."], "sol": "Cambia el inyector o el sensor con falla.", "dif": "Media", "her": "escáner, manómetro.", "tip": "Bujía negra y húmeda en un cilindro: revisa su inyector."}, {"c": "P0300", "t": "Falla de encendido aleatoria o múltiple", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Fallas en varios cilindros o en cilindros que cambian.", "sin": "Motor tembloroso; luz de check fija o parpadeando.", "cau": ["bujías gastadas", "mezcla pobre", "combustible contaminado", "bobinas débiles."], "dia": ["Lee fallas por cilindro", "Revisa ajustes de combustible", "Inspecciona bujías y bobinas", "Mide presión y compresión."], "sol": "Corrige la causa común; no cambies bobinas al azar.", "dif": "Media", "her": "escáner, probador de chispa.", "tip": "Luz parpadeando: no manejes, se daña el catalizador."}, {"c": "P0301", "t": "Falla de encendido cilindro 1", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "El cilindro 1 no quema bien con frecuencia mayor a la permitida.", "sin": "Ralentí tembloroso; tirones.", "cau": ["bujía", "bobina", "inyector", "aceite en el pozo."], "dia": ["Intercambia la bobina", "Intercambia la bujía", "Prueba el inyector con lámpara noid", "Mide compresión."], "sol": "Cambia la pieza que movió la falla o repara la parte mecánica.", "dif": "Media", "her": "escáner, lámpara noid.", "tip": "Aceite en el pozo indica empaque de tapa de válvulas."}, {"c": "P0302", "t": "Falla de encendido cilindro 2", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Combustión deficiente repetida en el cilindro 2.", "sin": "Vibración; pérdida de fuerza.", "cau": ["bujía", "bobina", "inyector", "conector suelto."], "dia": ["Revisa conectores", "Intercambia bobina y bujía", "Prueba el inyector", "Mide compresión."], "sol": "Cambia la pieza confirmada.", "dif": "Media", "her": "escáner, lámpara noid.", "tip": "Compresión baja en 2 y 3 juntos: empaque de culata."}, {"c": "P0303", "t": "Falla de encendido cilindro 3", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Combustión deficiente repetida en el cilindro 3.", "sin": "Vibración; consumo alto.", "cau": ["bujía", "bobina", "inyector", "fuga de vacío cerca del puerto."], "dia": ["Intercambia bobina y bujía", "Prueba el inyector", "Prueba de humo", "Mide compresión."], "sol": "Cambia la pieza o repara la fuga.", "dif": "Media", "her": "escáner, máquina de humo.", "tip": "Si la compresión sube con aceite en el cilindro, son anillos."}, {"c": "P0304", "t": "Falla de encendido cilindro 4", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Combustión deficiente repetida en el cilindro 4.", "sin": "Ralentí tembloroso; tirones.", "cau": ["bujía", "bobina", "inyector", "arnés quemado."], "dia": ["Revisa el arnés", "Intercambia bobina y bujía", "Prueba el inyector", "Mide compresión."], "sol": "Cambia la pieza o repara el arnés.", "dif": "Media", "her": "escáner, probador de chispa.", "tip": "Revisa fisuras en el capuchón de las bobinas tipo lápiz."}, {"c": "P0325", "t": "Circuito del sensor de detonación 1", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Falla en el circuito del sensor de detonación 1 (banco 1 o sensor único).", "sin": "Pérdida de potencia por atraso de encendido; consumo mayor.", "cau": ["conector corroído", "cable dañado", "sensor dañado o mal apretado."], "dia": ["Revisa conector y arnés", "Mide el circuito", "Golpea cerca y mira la señal."], "sol": "Repara cableado o cambia el sensor con el apriete del fabricante.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Un apriete incorrecto cambia su sensibilidad."}, {"c": "P0327", "t": "Sensor de detonación 1: entrada baja", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Señal del sensor de detonación 1 bajo el mínimo.", "sin": "Pérdida de potencia leve.", "cau": ["cable abierto", "conector dañado", "sensor dañado o flojo."], "dia": ["Revisa el conector", "Mide continuidad y corto a masa", "Mira la señal golpeando el bloque."], "sol": "Repara el arnés o cambia el sensor.", "dif": "Media", "her": "multímetro, osciloscopio.", "tip": "Si está bajo la admisión, cambia también sus empaques."}, {"c": "P0335", "t": "Circuito del sensor de cigüeñal (CKP) A", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Sin señal del CKP o señal incoherente.", "sin": "Gira y no arranca; se apaga en marcha.", "cau": ["CKP dañado por calor", "conector con aceite", "cable abierto", "reluctora dañada."], "dia": ["Mira RPM en el escáner durante el arranque", "Mide alimentación y masa", "Mira la señal con osciloscopio."], "sol": "Cambia el sensor o repara cableado y reluctora.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Si se apaga en caliente, calienta el CKP con pistola de calor."}, {"c": "P0340", "t": "Circuito del sensor de árbol de levas (CMP) A", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Sin señal del CMP A (banco 1 o sensor único) o fuera de rango.", "sin": "Arranque largo; falla en marcha.", "cau": ["CMP dañado", "aceite en el conector", "cable abierto", "distribución saltada."], "dia": ["Revisa el conector", "Mide alimentación y masa", "Compara CMP y CKP en osciloscopio."], "sol": "Cambia el sensor, repara cableado o la distribución.", "dif": "Media", "her": "multímetro, osciloscopio de dos canales.", "tip": "El aceite puede llegar por el cable hasta la computadora."}, {"c": "P0341", "t": "CMP A: rango o rendimiento", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Hay señal del CMP pero no coincide con la del cigüeñal.", "sin": "Arranque difícil; tirones.", "cau": ["cadena estirada o saltada", "ruido eléctrico", "sensor débil", "batería baja en el arranque."], "dia": ["Mide batería durante el arranque", "Compara CKP y CMP", "Verifica marcas de distribución."], "sol": "Cambia el sensor o repara la distribución.", "dif": "Media", "her": "osciloscopio, probador de batería.", "tip": "P0341 con P0016 suele ser cadena estirada."}, {"c": "P0351", "t": "Circuito de la bobina de encendido A", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Falla en el circuito primario o secundario de la bobina A.", "sin": "Falla en un cilindro; vibración.", "cau": ["bobina dañada", "conector roto", "cable abierto", "sin 12 V."], "dia": ["Mide 12 V y masa", "Verifica la señal de disparo", "Intercambia la bobina y mira si cambia el código."], "sol": "Cambia la bobina o repara el cableado.", "dif": "Media", "her": "multímetro, osciloscopio.", "tip": "Confirma en el diagrama qué cilindro es la bobina A."}, {"c": "P0352", "t": "Circuito de la bobina de encendido B", "s": "Motor / Encendido", "g": "Encendido y fallas de encendido", "sig": "Falla en el circuito primario o secundario de la bobina B.", "sin": "Falla en un cilindro; vibración.", "cau": ["bobina dañada", "conector o cable", "sin alimentación", "humedad en el pozo."], "dia": ["Revisa conector", "Mide alimentación y disparo", "Intercambia la bobina."], "sol": "Cambia la bobina o repara el cableado.", "dif": "Media", "her": "multímetro, osciloscopio.", "tip": "Varias bobinas con código a la vez: revisa fusible o relé común."}, {"c": "P0400", "t": "Flujo de EGR: falla", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "Problema general en el flujo de EGR.", "sin": "Ralentí irregular; cascabeleo al acelerar.", "cau": ["válvula con carbón", "conductos tapados", "solenoide de vacío", "mangueras rotas."], "dia": ["Revisa mangueras", "Comanda la EGR y mira el cambio de RPM", "Revisa carbón en válvula y conductos."], "sol": "Limpia o cambia válvula o solenoide.", "dif": "Media", "her": "escáner bidireccional, bomba de vacío.", "tip": "Abrir la EGR en ralentí debe hacer temblar el motor."}, {"c": "P0401", "t": "Flujo de EGR insuficiente", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "Se comanda la EGR pero pasa menos gas del esperado.", "sin": "Cascabeleo al acelerar o subir cuesta.", "cau": ["conductos tapados", "válvula trabada cerrada", "mangueras rotas", "sensor de presión diferencial dañado."], "dia": ["Aplica vacío a la válvula en ralentí", "Revisa los conductos", "Prueba sensor y solenoide."], "sol": "Limpia conductos; cambia la pieza dañada.", "dif": "Media", "her": "bomba de vacío, multímetro.", "tip": "Limpia el conducto completo, no solo la válvula."}, {"c": "P0402", "t": "Flujo de EGR excesivo", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "Pasa más gas del esperado o cuando no debe.", "sin": "Se apaga al detenerse; ralentí muy irregular.", "cau": ["válvula pegada abierta", "solenoide que da vacío siempre", "mangueras mal conectadas."], "dia": ["Tapa la manguera de vacío: si mejora, el control falla", "Si no, revisa que la válvula cierre", "Prueba el solenoide."], "sol": "Limpia o cambia la válvula o el solenoide.", "dif": "Media", "her": "bomba de vacío, diagrama de vacío.", "tip": "Se apaga en cada semáforo pero acelera bien: EGR abierta."}, {"c": "P0410", "t": "Sistema de aire secundario", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "El aire secundario (aire al escape en frío) no funciona bien.", "sin": "Bomba ruidosa o muda en frío.", "cau": ["bomba quemada o con agua", "relé o fusible", "válvula de corte trabada", "mangueras rotas."], "dia": ["Escucha la bomba en arranque frío", "Revisa fusible y relé", "Revisa la válvula de corte."], "sol": "Cambia bomba, relé o válvula.", "dif": "Media", "her": "multímetro, bomba de vacío.", "tip": "Agua en la bomba indica válvula de corte dañada."}, {"c": "P0411", "t": "Aire secundario: flujo incorrecto", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "La bomba trabaja pero el O2 no ve el exceso de oxígeno esperado.", "sin": "Luz de check.", "cau": ["válvula de corte tapada", "conductos con carbón", "mangueras con fuga", "bomba débil."], "dia": ["En frío, el O2 debe leer pobre con la bomba activa", "Verifica flujo de la bomba", "Revisa válvula y conductos."], "sol": "Limpia conductos; cambia válvula o bomba.", "dif": "Media", "her": "escáner con gráfica, bomba de vacío.", "tip": "La prueba corre solo en frío: verifica al día siguiente."}, {"c": "P0420", "t": "Eficiencia del catalizador baja, banco 1", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "El catalizador del banco 1 ya no almacena oxígeno como debe.", "sin": "Luz de check; a veces olor a azufre o pérdida de potencia.", "cau": ["catalizador agotado", "fuga de escape", "O2 posterior defectuoso", "fallas de encendido previas."], "dia": ["Descarta otros códigos", "Si el O2 posterior copia al anterior, falla", "Mide temperatura de entrada y salida."], "sol": "Corrige la causa raíz y cambia el catalizador homologado.", "dif": "Media", "her": "escáner con gráfica, termómetro infrarrojo.", "tip": "Un catalizador sano sale más caliente de lo que entra."}, {"c": "P0430", "t": "Eficiencia del catalizador baja, banco 2", "s": "Motor / Emisiones", "g": "Emisiones auxiliares", "sig": "Igual que P0420, en el catalizador del banco 2.", "sin": "Luz de check.", "cau": ["catalizador agotado", "fuga de escape", "O2 posterior dañado", "fallas de encendido del banco 2."], "dia": ["Busca fallas de encendido del banco 2", "Compara gráficas con el banco 1", "Revisa fugas."], "sol": "Corrige la causa y cambia el catalizador.", "dif": "Media", "her": "escáner con gráfica, termómetro infrarrojo.", "tip": "Usa el banco sano como referencia."}, {"c": "P0440", "t": "Sistema EVAP: falla", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "Problema general en el sistema de vapores de combustible.", "sin": "Luz de check; a veces olor a combustible.", "cau": ["tapa floja", "manguera rota", "válvula de purga o ventilación", "cánister roto."], "dia": ["Revisa la tapa", "Prueba de humo", "Comanda purga y ventilación."], "sol": "Cambia la pieza dañada.", "dif": "Media", "her": "escáner bidireccional, máquina de humo EVAP.", "tip": "Empieza siempre por la tapa."}, {"c": "P0441", "t": "EVAP: flujo de purga incorrecto", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "Se comanda la purga y no se ve el efecto, o hay flujo sin comando.", "sin": "Ralentí irregular tras cargar combustible.", "cau": ["válvula de purga trabada", "manguera rota o tapada", "cánister tapado", "sin alimentación."], "dia": ["Revisa la manguera", "Comanda la válvula", "Sin comando, debe sostener vacío."], "sol": "Cambia la válvula o repara mangueras.", "dif": "Baja", "her": "escáner, bomba de vacío.", "tip": "Si tiembla tras cargar, la purga queda abierta."}, {"c": "P0442", "t": "EVAP: fuga pequeña", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "Fuga pequeña, del orden de 0.040 pulgadas (aprox. 1 mm).", "sin": "Luz de check.", "cau": ["empaque de la tapa", "manguera con grieta", "empaque de la bomba en el tanque", "cánister fisurado."], "dia": ["Revisa la tapa", "Prueba de humo con ventilación cerrada", "Busca tinte con luz UV."], "sol": "Cambia la pieza con fuga.", "dif": "Media", "her": "máquina de humo EVAP, linterna UV.", "tip": "Algunas fugas solo aparecen en caliente."}, {"c": "P0446", "t": "EVAP: circuito de ventilación", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "Falla en el circuito o el funcionamiento de la válvula de ventilación del cánister.", "sin": "La pistola salta al cargar.", "cau": ["válvula trabada por tierra", "filtro tapado", "conector corroído", "cánister saturado."], "dia": ["Revisa conector", "Comanda la válvula", "Sopla con la válvula abierta y cerrada."], "sol": "Cambia válvula, filtro o cánister.", "dif": "Baja", "her": "escáner, multímetro.", "tip": "No llenes el tanque después de que la pistola salta."}, {"c": "P0455", "t": "EVAP: fuga grande", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "El sistema no logra hacer ni mantener vacío: hay fuga grande o pieza abierta.", "sin": "Olor a combustible; luz de check.", "cau": ["tapa floja o ausente", "manguera suelta", "purga trabada cerrada", "ventilación abierta."], "dia": ["Revisa la tapa", "Prueba de humo", "Comanda purga y ventilación."], "sol": "Cambia la tapa o la pieza dañada.", "dif": "Baja", "her": "máquina de humo EVAP, escáner.", "tip": "Si no ves humo, revisa que la ventilación cierre."}, {"c": "P0456", "t": "EVAP: fuga muy pequeña", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "Fuga muy pequeña, del orden de 0.020 pulgadas (aprox. 0.5 mm).", "sin": "Luz de check.", "cau": ["empaque de la tapa", "abrazaderas flojas", "empaque de la bomba", "purga que no sella."], "dia": ["Prueba la tapa", "Humo con tinte y luz UV", "Verifica sellado de válvulas."], "sol": "Cambia la pieza; si no aparece, cambia la tapa.", "dif": "Media", "her": "máquina de humo con tinte, linterna UV.", "tip": "Deja la máquina trabajando varios minutos."}, {"c": "P0496", "t": "EVAP: alto flujo de purga", "s": "Motor / EVAP", "g": "Emisiones auxiliares", "sig": "Hay flujo de vapores a la admisión cuando la purga debería estar cerrada.", "sin": "Se apaga al cargar; arranque difícil tras cargar.", "cau": ["válvula de purga abierta", "fuga interna del solenoide", "mangueras mal conectadas."], "dia": ["Tapa la manguera de purga: si mejora, está abierta", "Sin comando, debe sostener vacío", "Revisa el control."], "sol": "Cambia la válvula de purga.", "dif": "Baja", "her": "bomba de vacío, escáner.", "tip": "Si el cánister tiene líquido, cámbialo también."}, {"c": "P0500", "t": "Sensor de velocidad del vehículo (VSS) A", "s": "Chasis / Velocidad", "g": "Velocidad, ralentí y entradas auxiliares", "sig": "Sin señal de velocidad o señal incoherente con RPM y marcha.", "sin": "Velocímetro muerto; cambios bruscos.", "cau": ["VSS dañado", "conector corroído", "cable abierto", "falla de sensor de rueda o ABS (si toma de ahí)."], "dia": ["Averigua de dónde toma la velocidad", "Lee la velocidad en ruta", "Mira la señal con osciloscopio."], "sol": "Cambia el sensor o repara el cableado.", "dif": "Media", "her": "escáner, osciloscopio.", "tip": "Si viene del ABS, lee primero el módulo ABS."}, {"c": "P0505", "t": "Control de aire de ralentí (IAC)", "s": "Motor / Ralentí", "g": "Velocidad, ralentí y entradas auxiliares", "sig": "La computadora no logra mantener las RPM de ralentí deseadas.", "sin": "Ralentí que sube y baja; se apaga al detenerse.", "cau": ["cuerpo o IAC con carbón", "IAC dañada", "entrada de aire", "falta de reaprendizaje."], "dia": ["Compara RPM deseadas y reales", "Limpia el cuerpo", "Comanda la IAC", "Prueba de humo."], "sol": "Limpia o cambia y haz reaprendizaje.", "dif": "Baja", "her": "escáner bidireccional, limpiador.", "tip": "IAC casi cerrada y ralentí alto: entra aire por otro lado."}, {"c": "P0506", "t": "Ralentí más bajo de lo esperado", "s": "Motor / Ralentí", "g": "Velocidad, ralentí y entradas auxiliares", "sig": "RPM de ralentí bajo las deseadas aunque la computadora intenta subirlas.", "sin": "Ralentí bajo; se apaga.", "cau": ["cuerpo de aceleración sucio", "IAC trabada", "filtro tapado", "escape restringido."], "dia": ["Limpia el cuerpo", "Mira el control de ralentí", "Revisa filtro y contrapresión."], "sol": "Limpia, corrige restricciones y reaprende.", "dif": "Baja", "her": "escáner, limpiador.", "tip": "Limpiar sin reaprender puede empeorar el ralentí."}, {"c": "P0507", "t": "Ralentí más alto de lo esperado", "s": "Motor / Ralentí", "g": "Velocidad, ralentí y entradas auxiliares", "sig": "RPM de ralentí sobre las deseadas aunque la computadora intenta bajarlas.", "sin": "Ralentí acelerado; consumo alto.", "cau": ["entrada de aire", "mariposa que no cierra", "IAC abierta", "ECT que indica frío."], "dia": ["Revisa cable y tapete", "Prueba de humo", "Mira el ECT."], "sol": "Repara la fuga y reaprende.", "dif": "Baja", "her": "escáner, máquina de humo.", "tip": "Si las RPM cambian al pisar el freno, revisa el servofreno."}, {"c": "P0562", "t": "Voltaje del sistema bajo", "s": "Eléctrico / Carga", "g": "Velocidad, ralentí y entradas auxiliares", "sig": "Voltaje de alimentación bajo el mínimo con motor en marcha.", "sin": "Luces débiles; arranque lento.", "cau": ["alternador débil", "correa floja", "batería mala", "bornes sulfatados."], "dia": ["Mide en bornes en marcha (típico 13.5–14.7 V)", "Revisa la correa", "Prueba batería y masas."], "sol": "Corrige correa, bornes, masas, alternador o batería.", "dif": "Baja", "her": "multímetro, probador de batería.", "tip": "Batería en 14 V y computadora en 12 V: falla el cableado."}, {"c": "P0563", "t": "Voltaje del sistema alto", "s": "Eléctrico / Carga", "g": "Velocidad, ralentí y entradas auxiliares", "sig": "Voltaje de alimentación sobre el máximo esperado.", "sin": "Focos quemados; batería hinchada.", "cau": ["regulador dañado", "cable de sensado flojo", "masa del alternador", "batería en corto."], "dia": ["Mide el voltaje con carga", "Revisa el regulador", "Prueba la batería."], "sol": "Cambia regulador o alternador.", "dif": "Baja", "her": "multímetro, probador de batería.", "tip": "No entregues el auto así: daña computadoras."}, {"c": "P0601", "t": "Error de checksum de memoria", "s": "Computadora", "g": "Computadora y circuitos de salida", "sig": "La memoria de programa no coincide con su suma de verificación.", "sin": "No arranca o modo de emergencia.", "cau": ["programación interrumpida", "picos de voltaje", "memoria dañada", "humedad."], "dia": ["Revisa batería y masas", "Pregunta por programaciones o soldaduras", "Reprograma."], "sol": "Reprograma; si falla, cambia y programa.", "dif": "Alta", "her": "escáner con programación, mantenedor de voltaje.", "tip": "Programa siempre con mantenedor de voltaje."}, {"c": "P0603", "t": "Error de memoria KAM", "s": "Computadora", "g": "Computadora y circuitos de salida", "sig": "Se perdieron los datos de la memoria de mantenimiento (aprendizajes).", "sin": "Ralentí irregular; cambios raros hasta reaprender.", "cau": ["alimentación permanente cortada", "batería desconectada", "bornes flojos."], "dia": ["Revisa el fusible permanente", "Mide 12 V con llave apagada", "Borra y verifica."], "sol": "Restituye la alimentación permanente.", "dif": "Media", "her": "multímetro, escáner.", "tip": "Tras desconectar la batería, puede ser normal."}, {"c": "P0606", "t": "Falla del procesador", "s": "Computadora", "g": "Computadora y circuitos de salida", "sig": "Error en el procesador interno o entre procesadores.", "sin": "Modo de emergencia; acelerador limitado.", "cau": ["masas o alimentaciones malas", "voltaje inestable", "humedad", "falla interna."], "dia": ["Mide masas y alimentaciones", "Revisa humedad", "Busca boletines de software."], "sol": "Corrige masas; actualiza software; cambia como último paso.", "dif": "Alta", "her": "multímetro, escáner con programación.", "tip": "Muchos se corrigen con actualización del fabricante."}, {"c": "P0627", "t": "Control de bomba de combustible A abierto", "s": "Combustible", "g": "Computadora y circuitos de salida", "sig": "Circuito abierto en el control de la bomba o su módulo.", "sin": "No arranca; arranca y se apaga.", "cau": ["relé dañado", "conector corroído", "cable abierto", "módulo de bomba."], "dia": ["Escucha la bomba", "Revisa fusible y relé", "Comanda la bomba y mide el control."], "sol": "Cambia relé, módulo o bomba; repara cable.", "dif": "Media", "her": "escáner bidireccional, multímetro.", "tip": "Abre el conector de la bomba: suele estar derretido."}, {"c": "P0641", "t": "Referencia de 5 V de sensores A", "s": "Computadora", "g": "Computadora y circuitos de salida", "sig": "La referencia de 5 V de un grupo de sensores está abierta o fuera de rango.", "sin": "Varios códigos de sensores; modo de emergencia.", "cau": ["sensor en corto", "cable a masa por roce", "agua en conector", "computadora."], "dia": ["Lista los sensores que comparten la referencia", "Mide los 5 V", "Desconéctalos uno a uno."], "sol": "Cambia el sensor en corto o repara el cable.", "dif": "Media", "her": "multímetro, diagrama.", "tip": "Desconecta primero los sensores de presión."}, {"c": "P0700", "t": "Falla en control de la transmisión", "s": "Transmisión", "g": "Transmisión", "sig": "La TCM tiene un código y pidió encender la luz de check.", "sin": "Luz de check; a veces modo de emergencia.", "cau": ["cualquier falla guardada en la TCM", "ATF bajo."], "dia": ["Lee la TCM con escáner adecuado", "Revisa el ATF", "Sigue el código específico."], "sol": "Repara la falla de la TCM.", "dif": "Baja", "her": "escáner con acceso a TCM.", "tip": "Nunca cotices una transmisión por P0700."}, {"c": "P0705", "t": "Sensor de rango de transmisión", "s": "Transmisión", "g": "Transmisión", "sig": "Señal incoherente del sensor de posición de palanca.", "sin": "No arranca en P o N; reversa sin luces.", "cau": ["sensor desajustado", "contactos sucios", "cable de mando desajustado", "conector con agua."], "dia": ["Mira la posición en el escáner", "Verifica el cable", "Mide continuidad por posición."], "sol": "Ajusta o cambia el sensor.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Si va por fuera de la caja, busca agua en el conector."}, {"c": "P0715", "t": "Sensor de velocidad de entrada o turbina A", "s": "Transmisión", "g": "Transmisión", "sig": "Señal ausente o errónea del sensor de velocidad de entrada.", "sin": "Cambios bruscos; modo de emergencia.", "cau": ["sensor dañado", "conector con aceite", "cable abierto", "limaduras."], "dia": ["Compara con RPM del motor", "Revisa conector", "Mira la señal en osciloscopio."], "sol": "Cambia el sensor o repara cableado.", "dif": "Media", "her": "escáner, osciloscopio.", "tip": "Rebabas grandes en el imán indican desgaste interno."}, {"c": "P0720", "t": "Sensor de velocidad de salida", "s": "Transmisión", "g": "Transmisión", "sig": "Señal ausente o errónea del sensor de velocidad de salida.", "sin": "Velocímetro errático; cambios bruscos.", "cau": ["sensor dañado", "conector o cable", "limaduras", "anillo dañado."], "dia": ["Compara con velocidad de ruedas", "Revisa conector", "Mira la señal girando ruedas."], "sol": "Cambia el sensor o repara cableado.", "dif": "Media", "her": "escáner, osciloscopio.", "tip": "P0715 y P0720 juntos: revisa alimentación común."}, {"c": "P0730", "t": "Relación de marcha incorrecta", "s": "Transmisión", "g": "Transmisión", "sig": "La relación entrada/salida no coincide con la marcha comandada.", "sin": "Patinamiento; RPM suben sin acelerar.", "cau": ["ATF bajo o degradado", "solenoide trabado", "filtro tapado", "embragues gastados."], "dia": ["Revisa el ATF", "Mira en qué marcha falla", "Busca códigos de solenoides", "Mide presión de línea."], "sol": "Cambia ATF, filtro o solenoide; si hay desgaste, reparación mayor.", "dif": "Alta", "her": "escáner con TCM, manómetro de presión.", "tip": "Cambiar ATF quemado no repara embragues: avisa antes."}, {"c": "P0740", "t": "Circuito del embrague del convertidor (TCC)", "s": "Transmisión", "g": "Transmisión", "sig": "Falla eléctrica del solenoide de bloqueo del convertidor.", "sin": "RPM altas en carretera; ATF caliente.", "cau": ["solenoide abierto o en corto", "conector interno", "cableado", "driver de la TCM."], "dia": ["Mide resistencia desde el conector externo", "Comanda y mide corriente", "Revisa alimentación."], "sol": "Cambia solenoide o arnés.", "dif": "Media", "her": "escáner bidireccional, multímetro.", "tip": "Resistencia correcta afuera: busca hacia la TCM."}, {"c": "P0741", "t": "TCC: rendimiento o atascado apagado", "s": "Transmisión", "g": "Transmisión", "sig": "Se comanda el bloqueo pero el convertidor patina.", "sin": "Temblor a velocidad constante; consumo alto.", "cau": ["ATF degradado", "solenoide gastado", "cuerpo de válvulas", "convertidor gastado."], "dia": ["Revisa el ATF", "Mide el deslizamiento con bloqueo", "Prueba el solenoide."], "sol": "Cambia ATF, solenoide o convertidor.", "dif": "Alta", "her": "escáner con TCM, multímetro.", "tip": "Si el temblor se va al rozar el freno, es el convertidor."}, {"c": "P0750", "t": "Solenoide de cambio A", "s": "Transmisión", "g": "Transmisión", "sig": "Falla eléctrica o funcional del solenoide de cambio A.", "sin": "Modo de emergencia; fija en una marcha.", "cau": ["solenoide abierto o en corto", "conector", "arnés", "ATF contaminado."], "dia": ["Mide resistencia", "Revisa conector", "Comanda el solenoide."], "sol": "Cambia solenoide o arnés.", "dif": "Media", "her": "escáner bidireccional, multímetro.", "tip": "La letra del solenoide la define cada fabricante."}, {"c": "P0755", "t": "Solenoide de cambio B", "s": "Transmisión", "g": "Transmisión", "sig": "Falla eléctrica o funcional del solenoide de cambio B.", "sin": "Faltan marchas; cambios bruscos.", "cau": ["solenoide dañado", "arnés", "ATF contaminado", "alimentación común."], "dia": ["Mide resistencia", "Busca otros códigos de solenoides", "Revisa ATF."], "sol": "Cambia solenoide o corrige alimentación.", "dif": "Media", "her": "escáner bidireccional, multímetro.", "tip": "P0750 y P0755 juntos: revisa el conector principal."}, {"c": "P0011", "t": "Árbol de levas A sobreavanzado, banco 1", "s": "Motor / VVT", "g": "Otros P relevantes", "sig": "El árbol A (generalmente admisión) está más adelantado de lo comandado o no sigue el comando.", "sin": "Ralentí irregular; falta de potencia.", "cau": ["aceite bajo o incorrecto", "solenoide VVT trabado", "actuador dañado", "cadena estirada."], "dia": ["Revisa el aceite", "Compara ángulo deseado y real", "Comanda y mide el solenoide."], "sol": "Cambia aceite, solenoide o actuador.", "dif": "Media", "her": "escáner bidireccional, multímetro.", "tip": "Revisa la malla filtro del solenoide."}, {"c": "P0012", "t": "Árbol de levas A sobreatrasado, banco 1", "s": "Motor / VVT", "g": "Otros P relevantes", "sig": "El árbol A está más atrasado de lo comandado.", "sin": "Arranque difícil; poca fuerza en bajas.", "cau": ["solenoide trabado", "aceite incorrecto", "pasador del actuador dañado", "cadena estirada."], "dia": ["Revisa el aceite", "Compara ángulos", "Prueba el solenoide."], "sol": "Cambia aceite, solenoide o actuador.", "dif": "Media", "her": "escáner bidireccional, estetoscopio.", "tip": "Golpeteo breve al arrancar en frío: actuador gastado."}, {"c": "P0014", "t": "Árbol de levas B sobreavanzado, banco 1", "s": "Motor / VVT", "g": "Otros P relevantes", "sig": "El árbol B (generalmente escape, según fabricante) está más adelantado de lo comandado.", "sin": "Ralentí irregular; consumo alto.", "cau": ["aceite degradado", "solenoide de escape trabado", "actuador dañado", "cadena."], "dia": ["Revisa el aceite", "Compara ángulos", "Intercambia solenoides si son iguales."], "sol": "Cambia aceite, solenoide o actuador.", "dif": "Media", "her": "escáner bidireccional, multímetro.", "tip": "Confirma en el manual cuál árbol es A y cuál B."}, {"c": "P0016", "t": "Correlación cigüeñal–árbol, banco 1 sensor A", "s": "Motor / Distribución", "g": "Otros P relevantes", "sig": "La relación entre señales CKP y CMP A está fuera de lo permitido.", "sin": "Arranque difícil; ruido de cadena.", "cau": ["cadena o correa estirada o saltada", "tensor", "actuador VVT trabado", "reluctora movida."], "dia": ["Escucha la cadena", "Compara CKP y CMP en osciloscopio", "Verifica marcas de distribución."], "sol": "Cambia el kit de distribución o el actuador.", "dif": "Alta", "her": "osciloscopio, herramientas de distribución.", "tip": "No lo dejes pasar: una cadena que salta daña válvulas."}, {"c": "P0017", "t": "Correlación cigüeñal–árbol, banco 1 sensor B", "s": "Motor / Distribución", "g": "Otros P relevantes", "sig": "Igual que P0016, con el árbol B del banco 1.", "sin": "Falta de potencia; ruido de cadena.", "cau": ["cadena estirada", "actuador de escape", "sensor CMP B", "tensor."], "dia": ["Mira si también hay P0016", "Compara señales", "Revisa marcas."], "sol": "Cambia distribución, actuador o sensor.", "dif": "Alta", "her": "osciloscopio, herramientas de distribución.", "tip": "P0016 y P0017 juntos: casi siempre cadena."}, {"c": "P0087", "t": "Presión de combustible demasiado baja", "s": "Combustible", "g": "Otros P relevantes", "sig": "Presión real del riel bajo la deseada; típico en diésel e inyección directa.", "sin": "Tirones; falta de potencia.", "cau": ["filtro tapado", "bomba de baja débil", "bomba de alta gastada", "regulador."], "dia": ["Compara presión deseada y real", "Mide la presión de baja", "Prueba retorno de inyectores."], "sol": "Cambia filtro, bomba o regulador según la prueba.", "dif": "Alta", "her": "escáner, manómetro de baja.", "tip": "Empieza siempre por la presión de baja."}, {"c": "P0088", "t": "Presión de combustible demasiado alta", "s": "Combustible", "g": "Otros P relevantes", "sig": "Presión real sobre la deseada y la computadora no logra bajarla.", "sin": "Ruido de inyección; humo.", "cau": ["regulador trabado", "retorno tapado", "sensor de presión falso", "válvula de alivio."], "dia": ["Compara presiones", "Revisa el retorno", "Lee el sensor con motor apagado y frío."], "sol": "Cambia regulador o sensor; libera el retorno.", "dif": "Alta", "her": "escáner, multímetro.", "tip": "Despresurizado, el sensor debe leer casi cero."}, {"c": "P0089", "t": "Regulador de presión 1: rendimiento", "s": "Combustible", "g": "Otros P relevantes", "sig": "La presión real no sigue a la deseada de forma estable.", "sin": "Tirones; se apaga al soltar el acelerador.", "cau": ["regulador sucio o gastado", "combustible con agua", "filtro tapado", "bomba de alta."], "dia": ["Grafica presión deseada y real", "Revisa filtro y agua", "Prueba el regulador."], "sol": "Cambia filtro o regulador; limpia si hay contaminación.", "dif": "Alta", "her": "escáner con gráfica, multímetro.", "tip": "En diésel, drena el separador de agua."}, {"c": "P0093", "t": "Fuga grande en el sistema de combustible", "s": "Combustible", "g": "Otros P relevantes", "sig": "Caída de presión rápida sin consumo que la explique; típico de diésel common rail.", "sin": "Se apaga; olor a diésel.", "cau": ["línea de alta fisurada", "inyector con retorno excesivo", "válvula de alivio abierta", "sensor falso."], "dia": ["Inspecciona líneas e inyectores", "Prueba retorno", "Revisa válvula de alivio."], "sol": "Cambia la línea o el inyector.", "dif": "Alta", "her": "kit de retorno, lentes y guantes.", "tip": "Muchas líneas de alta no se reutilizan."}, {"c": "P0128", "t": "Termostato: temperatura baja", "s": "Motor / Refrigeración", "g": "Otros P relevantes", "sig": "El motor tarda demasiado en llegar a temperatura de trabajo.", "sin": "Calefacción débil; aguja baja.", "cau": ["termostato abierto", "ECT con lectura baja", "ventilador siempre activo", "refrigerante bajo."], "dia": ["Grafica el ECT desde frío", "Toca la manguera superior", "Compara ECT con infrarrojo."], "sol": "Cambia termostato y purga el sistema.", "dif": "Baja", "her": "escáner, termómetro infrarrojo.", "tip": "Usa la temperatura de apertura del fabricante."}, {"c": "P0234", "t": "Sobrepresión del turbo", "s": "Motor / Turbo", "g": "Otros P relevantes", "sig": "La presión de sobrealimentación supera el límite.", "sin": "Tirón seguido de corte; modo de emergencia.", "cau": ["wastegate cerrada", "geometría variable trabada", "solenoide de control", "mangueras."], "dia": ["Compara presión deseada y real", "Mueve el actuador", "Prueba solenoide y sensor."], "sol": "Libera o cambia actuador, solenoide o sensor.", "dif": "Media", "her": "escáner, bomba de vacío.", "tip": "El uso urbano a bajas RPM traba la geometría variable."}, {"c": "P0299", "t": "Baja presión del turbo", "s": "Motor / Turbo", "g": "Otros P relevantes", "sig": "La presión de sobrealimentación queda bajo la deseada.", "sin": "Falta de potencia; silbido.", "cau": ["fuga en mangueras o intercooler", "wastegate abierta", "actuador trabado", "turbo gastado."], "dia": ["Revisa mangueras y abrazaderas", "Presuriza la admisión", "Revisa actuador y juego del eje."], "sol": "Repara la fuga o cambia actuador o turbo.", "dif": "Media", "her": "escáner, kit de presurización.", "tip": "Manguera con aceite por fuera: busca la rajadura ahí."}, {"c": "P2096", "t": "Ajuste post-catalizador pobre, banco 1", "s": "Motor / Mezcla", "g": "Otros P relevantes", "sig": "El ajuste que usa el O2 posterior llegó al límite de enriquecimiento.", "sin": "Luz de check; a veces con P0420.", "cau": ["fuga de escape cerca del O2 posterior", "O2 posterior bajo", "O2 anterior falso", "catalizador."], "dia": ["Busca fugas", "Compara gráficas O2", "Enriquece y mira el O2 posterior."], "sol": "Repara la fuga o cambia el sensor.", "dif": "Media", "her": "escáner con gráfica.", "tip": "Las uniones del catalizador meten aire y engañan al sensor."}, {"c": "P2097", "t": "Ajuste post-catalizador rico, banco 1", "s": "Motor / Mezcla", "g": "Otros P relevantes", "sig": "El ajuste del O2 posterior llegó al límite de empobrecimiento.", "sin": "Consumo alto; olor a azufre.", "cau": ["O2 anterior viejo", "mezcla rica real", "catalizador dañado", "O2 posterior contaminado."], "dia": ["Prueba el O2 anterior", "Mira ajustes", "Mide presión de combustible."], "sol": "Cambia el sensor viejo o corrige la mezcla.", "dif": "Media", "her": "escáner con gráfica, manómetro.", "tip": "Un O2 anterior muy viejo lee sesgado a pobre."}, {"c": "P2135", "t": "Correlación TPS o pedal A/B", "s": "Motor / Acelerador", "g": "Otros P relevantes", "sig": "Las dos señales redundantes de posición no coinciden entre sí.", "sin": "Modo de emergencia; no acelera.", "cau": ["pista del sensor gastada", "conector corroído", "arnés dañado", "carbón en la mariposa."], "dia": ["Grafica las dos señales", "Mueve el arnés", "Mide referencia y masa."], "sol": "Repara conector o cambia el cuerpo y reaprende.", "dif": "Media", "her": "escáner con gráfica, osciloscopio.", "tip": "Si una señal salta al mover el arnés, hallaste la falla."}, {"c": "P2138", "t": "Correlación pedal D/E", "s": "Motor / Acelerador", "g": "Otros P relevantes", "sig": "Las dos señales del sensor del pedal no coinciden.", "sin": "No acelera; RPM limitadas.", "cau": ["sensor del pedal gastado", "conector flojo", "cableado", "masa compartida."], "dia": ["Grafica ambas señales pisando despacio", "Revisa el conector", "Mide referencias."], "sol": "Cambia el pedal o repara el cableado.", "dif": "Media", "her": "escáner con gráfica, multímetro.", "tip": "El conector del pedal se moja con agua de los zapatos."}, {"c": "P2187", "t": "Sistema pobre en ralentí, banco 1", "s": "Motor / Mezcla", "g": "Otros P relevantes", "sig": "Ajuste al límite positivo solo en ralentí.", "sin": "Ralentí inestable; bien en carretera.", "cau": ["entrada de aire", "PCV abierta", "tapa de aceite mal cerrada", "ducto roto tras el MAF."], "dia": ["Confirma que es solo en ralentí", "Revisa tapa y varilla", "Prueba de humo."], "sol": "Repara la entrada de aire.", "dif": "Baja", "her": "escáner, máquina de humo.", "tip": "Revisa la membrana PCV integrada en la tapa de válvulas."}, {"c": "P2188", "t": "Sistema rico en ralentí, banco 1", "s": "Motor / Mezcla", "g": "Otros P relevantes", "sig": "Ajuste al límite negativo solo en ralentí.", "sin": "Ralentí pesado; olor a combustible.", "cau": ["purga EVAP abierta", "inyector goteando", "aceite diluido", "presión alta."], "dia": ["Pinza la purga", "Huele el aceite", "Mide presión y caída."], "sol": "Cambia purga o inyector; cambia el aceite.", "dif": "Media", "her": "escáner, pinza para mangueras.", "tip": "Si aparece tras cargar combustible, es la purga."}, {"c": "P2002", "t": "Eficiencia del DPF baja, banco 1", "s": "Motor / Diésel", "g": "Otros P relevantes", "sig": "El filtro de partículas no retiene el hollín: roto, perforado o retirado.", "sin": "Humo negro; escape negro de hollín.", "cau": ["DPF agrietado", "sensor de presión diferencial", "mangueras del sensor", "fuga antes del DPF."], "dia": ["Revisa mangueras del sensor", "Lee la presión diferencial", "Mira la salida del escape."], "sol": "Corrige el sensor o cambia el DPF.", "dif": "Alta", "her": "escáner diésel, boroscopio.", "tip": "Un DPF sano deja el tubo de salida casi limpio."}, {"c": "P242F", "t": "DPF restringido por ceniza", "s": "Motor / Diésel", "g": "Otros P relevantes", "sig": "El DPF acumuló demasiada ceniza, que no se quema al regenerar.", "sin": "Regeneraciones frecuentes; falta de potencia.", "cau": ["DPF al final de su vida", "consumo de aceite", "aceite no apto para DPF", "contador sin reiniciar."], "dia": ["Lee la ceniza calculada", "Revisa consumo y tipo de aceite", "Prueba el sensor diferencial."], "sol": "Limpia o cambia el DPF y reinicia el contador.", "dif": "Alta", "her": "escáner diésel con servicio.", "tip": "La ceniza no se va regenerando."}, {"c": "P2463", "t": "DPF restringido por hollín", "s": "Motor / Diésel", "g": "Otros P relevantes", "sig": "El DPF tiene hollín de más y las regeneraciones no lo queman.", "sin": "Luz de DPF; modo de emergencia.", "cau": ["solo trayectos cortos", "regeneraciones interrumpidas", "inyectores", "EGR."], "dia": ["Lee hollín e historial de regeneraciones", "Busca códigos de inyectores y EGR", "Haz regeneración forzada si se permite."], "sol": "Corrige la causa y regenera, limpia o cambia.", "dif": "Alta", "her": "escáner diésel, extintor.", "tip": "Explica al cliente que necesita recorridos de carretera."}, {"c": "U0001", "t": "Bus CAN de alta velocidad", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "Falla general de la red CAN de alta velocidad.", "sin": "Muchas luces a la vez; escáner sin comunicación.", "cau": ["CAN en corto o abierto", "conector con agua", "módulo que bloquea la red", "accesorio mal instalado."], "dia": ["Mide resistencia entre pines 6 y 14", "Mide voltajes", "Desconecta módulos uno a uno."], "sol": "Repara el cableado o cambia el módulo que bloquea.", "dif": "Alta", "her": "multímetro, osciloscopio.", "tip": "Pregunta por rastreadores o alarmas instalados."}, {"c": "U0073", "t": "Bus de comunicación A apagado", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "El módulo se desconectó de la red A por exceso de errores.", "sin": "Varias luces; modo de emergencia.", "cau": ["corto en CAN", "módulo con falla", "terminación dañada", "humedad."], "dia": ["Revisa batería y masas", "Mide la red", "Desconecta módulos hasta que vuelva."], "sol": "Repara el cableado o cambia el módulo.", "dif": "Alta", "her": "multímetro, osciloscopio.", "tip": "Revisa agua bajo las alfombras."}, {"c": "U0100", "t": "Sin comunicación con ECM/PCM A", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "Otros módulos no reciben mensajes de la computadora del motor.", "sin": "No arranca o se apaga; tacómetro en cero.", "cau": ["computadora sin alimentación o masa", "conector flojo", "tramo de red abierto", "computadora dañada."], "dia": ["Intenta comunicar con el motor", "Revisa fusibles y relé principal", "Mide alimentaciones, masas y red."], "sol": "Restituye alimentación o repara la red.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Si es intermitente, revisa la masa de la computadora."}, {"c": "U0101", "t": "Sin comunicación con TCM", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "Otros módulos no reciben mensajes de la computadora de la transmisión.", "sin": "Modo de emergencia; indicador de marcha apagado.", "cau": ["TCM sin alimentación", "conector con aceite o agua", "red abierta", "TCM dañada por calor."], "dia": ["Intenta comunicar con la TCM", "Revisa fusibles", "Mide alimentación, masa y red."], "sol": "Restituye alimentación o cambia y programa la TCM.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Busca boletines sobre el conector de la TCM."}, {"c": "U0121", "t": "Sin comunicación con módulo ABS", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "Otros módulos no reciben mensajes del ABS.", "sin": "Luces de ABS y estabilidad; velocímetro muerto en algunos modelos.", "cau": ["fusibles del ABS", "conector corroído", "masa deficiente", "red dañada."], "dia": ["Intenta comunicar con el ABS", "Revisa fusibles", "Mide alimentación, masa y red."], "sol": "Corrige fusible o conector; cambia el módulo si falla.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Sella el conector del ABS con grasa dieléctrica."}, {"c": "U0140", "t": "Sin comunicación con BCM", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "Otros módulos no reciben mensajes del módulo de carrocería.", "sin": "Luces, seguros o limpiaparabrisas erráticos; inmovilizador activo.", "cau": ["BCM sin alimentación", "fusibles", "agua por filtraciones", "conector dañado."], "dia": ["Intenta comunicar con el BCM", "Revisa fusibles", "Busca agua en su zona."], "sol": "Corrige alimentación y filtración; cambia y programa si falla.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Repara la entrada de agua antes de cambiar el BCM."}, {"c": "U0155", "t": "Sin comunicación con tablero (IPC)", "s": "Red / Comunicación", "g": "Códigos U (red CAN)", "sig": "Otros módulos no reciben mensajes del tablero de instrumentos.", "sin": "Tablero apagado o agujas inmóviles; alarmas sin motivo.", "cau": ["fusible", "conector flojo tras trabajos en cabina", "masa", "tablero dañado."], "dia": ["Intenta comunicar con el tablero", "Revisa fusibles", "Mide alimentación y masa."], "sol": "Reconecta, repara o cambia y programa el tablero.", "dif": "Media", "her": "escáner, multímetro.", "tip": "Tras instalar radio o alarma, revisa su conector."}, {"c": "C0035", "t": "Sensor de rueda delantera izquierda", "s": "Chasis / ABS", "g": "Códigos B y C frecuentes", "sig": "Falla en circuito o señal del sensor delantero izquierdo; numeración extendida, puede variar por fabricante.", "sin": "Luces de ABS y estabilidad; ABS que actúa sin motivo.", "cau": ["sensor dañado", "cable roto por la suspensión", "conector corroído", "anillo reluctor dañado."], "dia": ["Compara las cuatro velocidades", "Revisa el cable", "Mide el sensor y mira su señal."], "sol": "Cambia sensor, cable, anillo o rodamiento.", "dif": "Media", "her": "escáner con ABS, multímetro.", "tip": "El anillo magnético del rodamiento va hacia el sensor."}, {"c": "C0040", "t": "Sensor de rueda delantera derecha", "s": "Chasis / ABS", "g": "Códigos B y C frecuentes", "sig": "Falla en circuito o señal del sensor delantero derecho; confirma con el fabricante.", "sin": "Luces de ABS y estabilidad.", "cau": ["sensor dañado", "cable", "conector", "anillo."], "dia": ["Compara velocidades", "Revisa cable", "Mide el sensor."], "sol": "Cambia sensor o cable; limpia el anillo.", "dif": "Media", "her": "escáner con ABS, multímetro.", "tip": "Tras cambiar frenos, revisa que el cable no quedó pellizcado."}, {"c": "C0045", "t": "Sensor de rueda trasera izquierda", "s": "Chasis / ABS", "g": "Códigos B y C frecuentes", "sig": "Falla en circuito o señal del sensor trasero izquierdo; puede variar por fabricante.", "sin": "Luces de ABS; ABS que actúa a baja velocidad.", "cau": ["sensor", "cable", "conector bajo el auto", "anillo oxidado."], "dia": ["Compara velocidades", "Revisa cable y conector", "Inspecciona el anillo."], "sol": "Cambia la pieza dañada.", "dif": "Media", "her": "escáner con ABS, elevador.", "tip": "Los anillos traseros se oxidan y se agrietan."}, {"c": "C0050", "t": "Sensor de rueda trasera derecha", "s": "Chasis / ABS", "g": "Códigos B y C frecuentes", "sig": "Falla en circuito o señal del sensor trasero derecho; confirma con el fabricante.", "sin": "Luces de ABS; tracción desactivada.", "cau": ["sensor", "cable", "conector", "anillo."], "dia": ["Compara velocidades", "Revisa cable", "Mira la señal girando la rueda."], "sol": "Cambia la pieza o repara el cable.", "dif": "Media", "her": "escáner con ABS, osciloscopio.", "tip": "Dos sensores del mismo eje: revisa el arnés común."}, {"c": "C0110", "t": "Circuito del motor de bomba ABS", "s": "Chasis / ABS", "g": "Códigos B y C frecuentes", "sig": "Falla en el circuito del motor de la bomba hidráulica; definición exacta según fabricante.", "sin": "ABS inoperante; luces de ABS.", "cau": ["fusible de potencia", "masa del módulo", "conector", "motor trabado."], "dia": ["Revisa el fusible", "Mide la masa", "Comanda la bomba."], "sol": "Corrige fusible o masa; cambia la unidad.", "dif": "Alta", "her": "escáner bidireccional, multímetro.", "tip": "Una bomba sin uso por meses se traba."}, {"c": "B0001", "t": "Airbag del conductor, etapa 1", "s": "Carrocería / SRS", "g": "Códigos B y C frecuentes", "sig": "Falla en el circuito de disparo etapa 1 del airbag frontal del conductor; subcódigos según fabricante.", "sin": "Luz de airbag; puede no desplegarse.", "cau": ["resorte reloj cortado", "conector suelto", "cableado de columna", "airbag dañado."], "dia": ["Desconecta batería y espera", "Revisa conectores", "Usa simulador de carga en lugar del airbag."], "sol": "Cambia resorte reloj o repara el circuito.", "dif": "Alta", "her": "escáner con SRS, simulador de airbag.", "tip": "Si falla la bocina, el resorte reloj está cortado."}, {"c": "B0010", "t": "Airbag del pasajero, etapa 1", "s": "Carrocería / SRS", "g": "Códigos B y C frecuentes", "sig": "Falla en el circuito de disparo etapa 1 del airbag frontal del pasajero; subcódigos según fabricante.", "sin": "Luz de airbag; puede no desplegarse.", "cau": ["conector suelto tras trabajos en el tablero", "cableado", "airbag dañado."], "dia": ["Desconecta batería y espera", "Revisa el conector tras la guantera", "Usa simulador de carga."], "sol": "Reconecta o repara; cambia el airbag si se confirma.", "dif": "Alta", "her": "escáner con SRS, simulador de airbag.", "tip": "Pregunta por trabajos recientes en el tablero."}], "flows": [{"t": "El motor de arranque no gira", "start": "P1", "n": {"P1": {"k": "P", "t": "¿Los testigos del tablero encienden con fuerza al dar contacto?", "o": {"SI": "P2", "NO": "A1"}}, "A1": {"k": "A", "t": "Mide batería en reposo (típico ≥ 12.4 V); limpia y ajusta bornes", "o": {"SIGUE": "P3"}}, "P3": {"k": "P", "t": "¿La batería sostiene más de ~9.6 V al intentar arrancar?", "o": {"SI": "P2", "NO": "F1"}}, "F1": {"k": "F", "t": "Solución: carga o reemplaza la batería y revisa el sistema de carga", "o": {}}, "P2": {"k": "P", "t": "¿Se escucha el clic del solenoide al girar la llave?", "o": {"SI": "P4", "NO": "P5"}}, "P5": {"k": "P", "t": "¿Llegan +12 V al terminal de mando del solenoide al dar arranque?", "o": {"SI": "F2", "NO": "A2"}}, "F2": {"k": "F", "t": "Solución: motor de arranque o solenoide defectuoso; repara o reemplaza", "o": {}}, "A2": {"k": "A", "t": "Revisa interruptor P/N o de embrague, relé y fusible de arranque e inmovilizador", "o": {"SIGUE": "F3"}}, "F3": {"k": "F", "t": "Solución: repara el elemento que corta la señal de mando", "o": {}}, "P4": {"k": "P", "t": "¿La caída de voltaje en cable positivo o masa supera ~0.5 V al arrancar?", "o": {"SI": "F4", "NO": "P6"}}, "F4": {"k": "F", "t": "Solución: limpia o reemplaza cables y masas de alta corriente", "o": {}}, "P6": {"k": "P", "t": "¿El cigüeñal gira a mano con llave en el perno de la polea?", "o": {"SI": "F2", "NO": "F5"}}, "F5": {"k": "F", "t": "Solución: motor trabado (hidrobloqueo o falla interna); no fuerces e inspecciona", "o": {}}}}, {"t": "El motor gira pero no enciende", "start": "P1", "n": {"P1": {"k": "P", "t": "¿Gira a velocidad normal (no lento)?", "o": {"SI": "P2", "NO": "F1"}}, "F1": {"k": "F", "t": "Arranque lento: vuelve al flujo 4.1 (batería, cables, arranque)", "o": {}}, "P2": {"k": "P", "t": "¿El escáner muestra RPM al dar arranque?", "o": {"SI": "P3", "NO": "F2"}}, "F2": {"k": "F", "t": "Revisa sensor CKP: alimentación, masa, señal y cableado; repara lo comprobado", "o": {}}, "P3": {"k": "P", "t": "¿Hay testigo de inmovilizador o código de llave?", "o": {"SI": "F3", "NO": "P4"}}, "F3": {"k": "F", "t": "Solución: diagnostica llave, antena e inmovilizador con escáner", "o": {}}, "P4": {"k": "P", "t": "¿La presión de combustible está en rango al dar contacto?", "o": {"SI": "P5", "NO": "F4"}}, "F4": {"k": "F", "t": "Revisa fusible y relé de bomba, alimentación en la bomba y filtro; repara", "o": {}}, "P5": {"k": "P", "t": "¿Hay chispa fuerte con probador de chispa?", "o": {"SI": "P6", "NO": "A1"}}, "A1": {"k": "A", "t": "Revisa alimentación de bobinas, señal de disparo de la ECU y sensor CMP", "o": {"SIGUE": "F5"}}, "F5": {"k": "F", "t": "Solución: repara el circuito de encendido o reemplaza la bobina mala", "o": {}}, "P6": {"k": "P", "t": "¿La compresión es pareja y dentro de rango?", "o": {"SI": "F6", "NO": "F7"}}, "F6": {"k": "F", "t": "Revisa pulso de inyectores con lámpara noid y combustible contaminado", "o": {}}, "F7": {"k": "F", "t": "Solución: falla mecánica; verifica sincronía de la distribución", "o": {}}}}, {"t": "El motor se apaga", "start": "P2", "n": {"P2": {"k": "P", "t": "¿Se apaga en ralentí con el motor caliente?", "o": {"SI": "P3", "NO": "P5"}}, "P3": {"k": "P", "t": "¿El cuerpo de aceleración o la válvula IAC están sucios?", "o": {"SI": "F1", "NO": "P4"}}, "F1": {"k": "F", "t": "Solución: limpia y realiza el aprendizaje de ralentí con el escáner", "o": {}}, "P4": {"k": "P", "t": "¿El LTFT está muy positivo en ralentí?", "o": {"SI": "F2", "NO": "F7"}}, "F2": {"k": "F", "t": "Solución: busca aire falso con máquina de humo y repara la fuga", "o": {}}, "F7": {"k": "F", "t": "Revisa válvula EGR pegada abierta y purga EVAP abierta", "o": {}}, "P5": {"k": "P", "t": "¿Se apaga al frenar o al detenerse?", "o": {"SI": "P6", "NO": "P7"}}, "P6": {"k": "P", "t": "¿El ralentí cae al pisar el freno con el auto detenido y motor en marcha?", "o": {"SI": "F3", "NO": "F4"}}, "F3": {"k": "F", "t": "Solución: repara fuga del servofreno (booster), su válvula o manguera", "o": {}}, "F4": {"k": "F", "t": "En automáticos, revisa embrague del convertidor (TCC) que no se libera", "o": {}}, "P7": {"k": "P", "t": "¿Se apaga solo cuando está caliente tras un rato de marcha?", "o": {"SI": "A2", "NO": "F5"}}, "A2": {"k": "A", "t": "Graba RPM, señal CKP, presión de combustible y encendido hasta que falle", "o": {"SIGUE": "F6"}}, "F6": {"k": "F", "t": "Solución: reemplaza el componente cuya señal cae en caliente", "o": {}}, "F5": {"k": "F", "t": "Revisa interruptor de encendido, relé principal y masas intermitentes", "o": {}}}}, {"t": "Consumo alto de combustible", "start": "P1", "n": {"P1": {"k": "P", "t": "¿El cliente confirma cambios de hábitos, carga o rutas?", "o": {"SI": "F1", "NO": "P2"}}, "F1": {"k": "F", "t": "Explica al cliente cómo influyen el uso, el tráfico y la carga", "o": {}}, "P2": {"k": "P", "t": "¿Llantas con presión correcta y frenos sin arrastre?", "o": {"SI": "P3", "NO": "F2"}}, "F2": {"k": "F", "t": "Solución: corrige presión de llantas o repara el freno que arrastra", "o": {}}, "P3": {"k": "P", "t": "¿El ECT llega a 85–105 °C en marcha (típico)?", "o": {"SI": "P4", "NO": "F3"}}, "F3": {"k": "F", "t": "Solución: reemplaza termostato pegado abierto o sensor ECT que lee bajo", "o": {}}, "P4": {"k": "P", "t": "¿Ajustes de combustible totales negativos (más allá de –10 %)?", "o": {"SI": "A1", "NO": "P5"}}, "A1": {"k": "A", "t": "Revisa presión de combustible, inyector goteando, purga EVAP y sensor O2", "o": {"SIGUE": "F4"}}, "F4": {"k": "F", "t": "Solución: repara la causa de mezcla rica comprobada", "o": {}}, "P5": {"k": "P", "t": "¿Hay fallas de encendido en Modo 6 o códigos de misfire?", "o": {"SI": "F5", "NO": "P6"}}, "F5": {"k": "F", "t": "Solución: repara bujías o bobinas falladas y verifica el catalizador", "o": {}}, "P6": {"k": "P", "t": "¿Filtro de aire, escape y sensor O2 en buen estado?", "o": {"SI": "F6", "NO": "F7"}}, "F6": {"k": "F", "t": "Haz prueba de consumo controlada de tanque lleno a tanque lleno", "o": {}}, "F7": {"k": "F", "t": "Solución: reemplaza el filtro, repara la restricción o el sensor O2 lento", "o": {}}}}, {"t": "Humo por el escape", "start": "P1", "n": {"P1": {"k": "P", "t": "¿El humo es azul o gris azulado?", "o": {"SI": "P2", "NO": "P4"}}, "P2": {"k": "P", "t": "¿Sale sobre todo al arrancar o tras un ralentí largo?", "o": {"SI": "F1", "NO": "P3"}}, "F1": {"k": "F", "t": "Probables sellos de válvulas endurecidos; confirma y reemplaza", "o": {}}, "P3": {"k": "P", "t": "¿Hay blow-by alto o baja compresión en prueba de fugas?", "o": {"SI": "F2", "NO": "F3"}}, "F2": {"k": "F", "t": "Solución: anillos de pistón gastados; planifica reparación del motor", "o": {}}, "F3": {"k": "F", "t": "Revisa sellos del turbo y válvula PCV que aspira aceite", "o": {}}, "P4": {"k": "P", "t": "¿El humo es blanco espeso y persiste con motor caliente?", "o": {"SI": "P5", "NO": "P6"}}, "P5": {"k": "P", "t": "¿Baja el refrigerante o hay gases de combustión en el depósito?", "o": {"SI": "F4", "NO": "F5"}}, "F4": {"k": "F", "t": "Solución: empaque de culata o culata fisurada; prueba de presión", "o": {}}, "F5": {"k": "F", "t": "Vapor por condensación en frío es normal; si persiste, revisa enfriador EGR", "o": {}}, "P6": {"k": "P", "t": "¿El humo es negro?", "o": {"SI": "A1", "NO": "F6"}}, "A1": {"k": "A", "t": "Revisa filtro de aire, ajustes, presión e inyectores; en diésel, turbo e inyección", "o": {"SIGUE": "F7"}}, "F7": {"k": "F", "t": "Solución: corrige la causa comprobada de mezcla rica", "o": {}}, "F6": {"k": "F", "t": "Observa el color con luz natural junto al cliente y repite la prueba", "o": {}}}}, {"t": "Vibraciones", "start": "P1", "n": {"P1": {"k": "P", "t": "¿Vibra en ralentí con el auto detenido?", "o": {"SI": "P2", "NO": "P4"}}, "P2": {"k": "P", "t": "¿Hay fallas de encendido en datos en vivo o Modo 6?", "o": {"SI": "F1", "NO": "P3"}}, "F1": {"k": "F", "t": "Solución: repara el cilindro que falla (bujía, bobina, inyector, compresión)", "o": {}}, "P3": {"k": "P", "t": "¿El motor se mueve en exceso al pasar de D a R con freno pisado?", "o": {"SI": "F2", "NO": "F3"}}, "F2": {"k": "F", "t": "Solución: reemplaza los soportes de motor o transmisión rotos", "o": {}}, "F3": {"k": "F", "t": "Revisa ralentí bajo, accesorios y polea amortiguadora del cigüeñal", "o": {}}, "P4": {"k": "P", "t": "¿Vibra solo al frenar?", "o": {"SI": "F4", "NO": "P5"}}, "F4": {"k": "F", "t": "Solución: rectifica o reemplaza discos alabeados; revisa bujes y rótulas", "o": {}}, "P5": {"k": "P", "t": "¿La vibración cambia con la velocidad y no con las RPM?", "o": {"SI": "P6", "NO": "F5"}}, "F5": {"k": "F", "t": "Revisa soportes, convertidor y accesorios: la vibración sigue a las RPM", "o": {}}, "P6": {"k": "P", "t": "¿Las llantas están balanceadas y sin deformaciones?", "o": {"SI": "F6", "NO": "F7"}}, "F6": {"k": "F", "t": "Revisa rodamientos, juntas homocinéticas, cardán y alineación", "o": {}}, "F7": {"k": "F", "t": "Solución: balancea, rota o reemplaza las llantas deformadas", "o": {}}}}, {"t": "Ruidos", "start": "P1", "n": {"P1": {"k": "P", "t": "¿El ruido cambia con las RPM del motor con el auto detenido?", "o": {"SI": "P2", "NO": "P5"}}, "P2": {"k": "P", "t": "¿Es un golpeteo metálico rítmico?", "o": {"SI": "P3", "NO": "P4"}}, "P3": {"k": "P", "t": "¿Desaparece o cambia al anular un cilindro?", "o": {"SI": "F1", "NO": "F2"}}, "F1": {"k": "F", "t": "Posible biela o pistón: mide presión de aceite y no uses el motor", "o": {}}, "F2": {"k": "F", "t": "Revisa taqués hidráulicos, nivel y presión de aceite y distribución", "o": {}}, "P4": {"k": "P", "t": "¿Desaparece al quitar la correa de accesorios un momento?", "o": {"SI": "F3", "NO": "F4"}}, "F3": {"k": "F", "t": "Solución: tensor, polea loca o accesorio con rodamiento dañado", "o": {}}, "F4": {"k": "F", "t": "Revisa escape, protectores térmicos y cadena o correa de distribución", "o": {}}, "P5": {"k": "P", "t": "¿El ruido aparece al girar el volante?", "o": {"SI": "F5", "NO": "P6"}}, "F5": {"k": "F", "t": "Clac-clac en curva: junta homocinética; chirrido: dirección o rótulas", "o": {}}, "P6": {"k": "P", "t": "¿Aparece al frenar?", "o": {"SI": "F6", "NO": "F7"}}, "F6": {"k": "F", "t": "Solución: pastillas gastadas, testigo metálico, discos o piezas flojas", "o": {}}, "F7": {"k": "F", "t": "Zumbido con la velocidad: rodamiento o llantas; confirma en elevador", "o": {}}}}, {"t": "Check engine intermitente", "start": "P1", "n": {"P1": {"k": "P", "t": "¿La MIL parpadea con el motor en marcha?", "o": {"SI": "P2", "NO": "F1"}}, "F1": {"k": "F", "t": "MIL fija: falla confirmada no crítica; sigue el método de 7 pasos", "o": {}}, "P2": {"k": "P", "t": "¿Hay código P0300 o P0301–P0312?", "o": {"SI": "P3", "NO": "A2"}}, "A2": {"k": "A", "t": "Revisa Modo 6 y contadores de fallas de encendido por cilindro", "o": {"SIGUE": "P3"}}, "P3": {"k": "P", "t": "¿La falla se mueve al intercambiar la bobina con otro cilindro?", "o": {"SI": "F2", "NO": "P4"}}, "F2": {"k": "F", "t": "Solución: reemplaza la bobina y revisa la bujía de ese cilindro", "o": {}}, "P4": {"k": "P", "t": "¿La bujía del cilindro está gastada, rota o empastada?", "o": {"SI": "F3", "NO": "P5"}}, "F3": {"k": "F", "t": "Solución: reemplaza bujías del grado correcto y busca la causa del empaste", "o": {}}, "P5": {"k": "P", "t": "¿El inyector del cilindro pulsa y tiene resistencia correcta?", "o": {"SI": "P6", "NO": "F4"}}, "F4": {"k": "F", "t": "Solución: repara el circuito o reemplaza el inyector", "o": {}}, "P6": {"k": "P", "t": "¿La compresión del cilindro está dentro de rango?", "o": {"SI": "F5", "NO": "F6"}}, "F5": {"k": "F", "t": "Revisa fuga de vacío local, combustible contaminado y sincronía CKP/CMP", "o": {}}, "F6": {"k": "F", "t": "Solución: falla mecánica; usa prueba de fugas para ubicar la causa", "o": {}}}}, {"t": "Falta de potencia", "start": "P2", "n": {"P2": {"k": "P", "t": "¿La mariposa abre al 100 % a fondo (TPS/APP en datos en vivo)?", "o": {"SI": "P3", "NO": "F1"}}, "F1": {"k": "F", "t": "Solución: revisa pedal APP, cuerpo de aceleración y alfombra que traba el pedal", "o": {}}, "P3": {"k": "P", "t": "¿El vacío cae progresivamente al sostener 2.500 RPM?", "o": {"SI": "F2", "NO": "P4"}}, "F2": {"k": "F", "t": "Solución: escape restringido (catalizador tapado); confirma con contrapresión", "o": {}}, "P4": {"k": "P", "t": "¿La presión de combustible se mantiene a plena carga?", "o": {"SI": "P5", "NO": "F3"}}, "F3": {"k": "F", "t": "Solución: reemplaza filtro o bomba débil y revisa el regulador", "o": {}}, "P5": {"k": "P", "t": "¿El MAF sube en proporción a las RPM y la carga?", "o": {"SI": "P6", "NO": "F4"}}, "F4": {"k": "F", "t": "Solución: limpia o reemplaza el MAF y revisa el ducto de admisión", "o": {}}, "P6": {"k": "P", "t": "¿Es motor turbo con presión real menor a la pedida?", "o": {"SI": "F5", "NO": "P7"}}, "F5": {"k": "F", "t": "Revisa fugas en intercooler y mangueras, wastegate y su actuador", "o": {}}, "P7": {"k": "P", "t": "¿Las RPM suben pero la velocidad no acompaña?", "o": {"SI": "F6", "NO": "F7"}}, "F6": {"k": "F", "t": "Solución: transmisión o embrague patinan; diagnostica la caja", "o": {}}, "F7": {"k": "F", "t": "Revisa frenos que arrastran, compresión y avance retrasado por detonación", "o": {}}}}]};
+
+const SYS_COLORS={motor:"var(--motor)",elec:"var(--elec)",frenos:"var(--frenos)",trans:"var(--trans)",susp:"var(--susp)",diag:"var(--diag)",mant:"var(--mant)",taller:"var(--taller)"};
+const IC={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ car:'<path d="M5 17h14M6 17v2M18 17v2M3 13l2-6a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 6v4H3z"/><circle cx="7.5" cy="13.5" r="1"/><circle cx="16.5" cy="13.5" r="1"/>',
+ engine:'<path d="M4 10h2V8h4V6h4v2h3l2 3h2v5h-2l-2 3H8l-2-3H4z"/>',
+ bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+ disc:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M21 12h-3"/>',
+ gear:'<circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+ spring:'<path d="M7 3h10M7 21h10M7 6l10 2-10 2 10 2-10 2 10 2-10 2"/>',
+ scan:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h7M15 9h2"/>',
+ pulse:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+ wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ shop:'<path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ chev:'<path d="M9 6l6 6-6 6"/>'
+};
+const svgI=(k,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
+
+/* Lista inicial de vehículos (editable). Verifica años y motores para tu mercado. */
+const VEH=[
+ {id:"toyota",n:"Toyota",c:"#E5384A",m:[
+  {n:"Hilux",g:[{y:[2016,2024],e:[["2GD-FTV","2.4 diésel turbo","D"],["1GD-FTV","2.8 diésel turbo","D"],["2TR-FE","2.7 gasolina","G"]]}]},
+  {n:"Corolla",g:[{y:[2014,2019],e:[["2ZR-FE","1.8 gasolina","G"]]},{y:[2020,2025],e:[["M20A-FKS","2.0 gasolina","G"],["2ZR-FXE","1.8 híbrido","H"]]}]},
+  {n:"Yaris",g:[{y:[2018,2023],e:[["2NR-FE","1.5 gasolina","G"]]}]}]},
+ {id:"nissan",n:"Nissan",c:"#C1121F",m:[
+  {n:"Frontier / NP300",g:[{y:[2016,2024],e:[["YS23DDT","2.3 diésel biturbo","D"],["QR25DE","2.5 gasolina","G"]]}]},
+  {n:"Versa",g:[{y:[2020,2025],e:[["HR16DE","1.6 gasolina","G"]]}]},
+  {n:"Sentra",g:[{y:[2013,2019],e:[["MRA8DE","1.8 gasolina","G"]]}]}]},
+ {id:"chevrolet",n:"Chevrolet",c:"#D4A017",m:[
+  {n:"Onix",g:[{y:[2020,2025],e:[["1.0T","1.0 turbo gasolina","G"],["1.2","1.2 gasolina","G"]]}]},
+  {n:"Aveo",g:[{y:[2018,2023],e:[["1.5","1.5 gasolina","G"]]}]}]},
+ {id:"volkswagen",n:"Volkswagen",c:"#1F5FBF",m:[
+  {n:"Gol",g:[{y:[2009,2023],e:[["EA111","1.6 gasolina","G"],["EA211 MSI","1.6 MSI gasolina","G"]]}]},
+  {n:"Jetta",g:[{y:[2019,2025],e:[["EA211 TSI","1.4 TSI gasolina","G"]]}]}]},
+ {id:"hyundai",n:"Hyundai",c:"#00447C",m:[
+  {n:"Accent",g:[{y:[2018,2022],e:[["Kappa 1.4","1.4 gasolina","G"],["Gamma 1.6","1.6 gasolina","G"]]}]},
+  {n:"Tucson",g:[{y:[2016,2021],e:[["Nu 2.0","2.0 gasolina","G"]]}]}]},
+ {id:"kia",n:"Kia",c:"#5E1914",m:[{n:"Rio",g:[{y:[2018,2023],e:[["Kappa 1.4","1.4 gasolina","G"]]}]}]},
+ {id:"ford",n:"Ford",c:"#133A7C",m:[{n:"Ranger",g:[{y:[2012,2022],e:[["2.2 TDCi","2.2 diésel","D"],["3.2 TDCi","3.2 diésel","D"]]}]}]},
+ {id:"mitsubishi",n:"Mitsubishi",c:"#B3001B",m:[{n:"L200",g:[{y:[2016,2023],e:[["4N15","2.4 diésel","D"]]}]}]},
+ {id:"suzuki",n:"Suzuki",c:"#0F4C9C",m:[{n:"Swift",g:[{y:[2018,2024],e:[["K12M","1.2 gasolina","G"]]}]}]},
+ {id:"mercedes",n:"Mercedes-Benz",c:"#3D4752",m:[{n:"Clase C (W205)",g:[{y:[2014,2021],e:[["M274","C200 2.0 turbo gasolina","G"],["OM651","C220d 2.1 diésel","D"]]}]}]},
+ {id:"bmw",n:"BMW",c:"#1C69D4",m:[{n:"Serie 3 (F30)",g:[{y:[2012,2019],e:[["N20","320i/328i 2.0 turbo","G"],["B48","320i/330i 2.0 turbo","G"]]}]}]},
+];
+const FUEL={G:"Gasolina",D:"Diésel",H:"Híbrido"};
+const initials=n=>n.replace(/[^A-Za-zÁ-ú ]/g," ").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+
+/* ======================== CUENTA (local) ======================== */
+const MEM={}; // respaldo si el navegador bloquea el almacenamiento (p. ej., vista previa)
+const PERSIST=(()=>{try{const k="__emp_t";localStorage.setItem(k,"1");localStorage.removeItem(k);return true}catch(e){return false}})();
+const LS={get(k,d){try{const v=PERSIST?localStorage.getItem(k):MEM[k];return v?JSON.parse(v):d}catch(e){return d}},
+          set(k,v){const j=JSON.stringify(v);if(PERSIST){try{localStorage.setItem(k,j);return}catch(e){}}MEM[k]=j}};
+async function hash(s){
+  try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}}catch(e){}
+  let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return "x"+h;
+}
+const users=()=>LS.get("emp_users",{});
+let ME=null, UD=null;
+function loadUD(){UD=LS.get("emp_ud_"+ME.email,{veh:null,recent:[],mine:[],notes:{},checks:{}})}
+function saveUD(){LS.set("emp_ud_"+ME.email,UD)}
+
+const $=s=>document.querySelector(s);
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2200)}
+
+document.querySelectorAll(".auth-tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".auth-tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  const s=b.dataset.tab==="signup";$("#loginForm").classList.toggle("hidden",s);$("#signupForm").classList.toggle("hidden",!s);
+  $("#authTitle").textContent=s?"Crea tu cuenta":"Entra a tu taller";
+});
+async function doSignup(){
+  const name=$("#sName").value.trim(),email=$("#sEmail").value.trim().toLowerCase(),pass=$("#sPass").value;const E=$("#sErr");
+  if(!name){E.textContent="Escribe tu nombre.";return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){E.textContent="Escribe un correo válido, por ejemplo nombre@correo.com.";return}
+  if(pass.length<6){E.textContent="La contraseña debe tener al menos 6 caracteres.";return}
+  const U=users();if(U[email]){E.textContent="Ya existe una cuenta con ese correo. Inicia sesión.";return}
+  try{
+    const salt=Math.random().toString(36).slice(2);
+    U[email]={name,shop:$("#sShop").value.trim(),country:$("#sCountry").value,salt,hash:await hash(salt+pass),created:Date.now()};
+    LS.set("emp_users",U);LS.set("emp_session",email);start(email,U[email]);toast("Cuenta creada. Bienvenido, "+name.split(" ")[0]);
+  }catch(err){E.textContent="No se pudo crear la cuenta: "+err.message}
+}
+async function doLogin(){
+  const email=$("#lEmail").value.trim().toLowerCase(),u=users()[email];const E=$("#lErr");
+  if(!email||!$("#lPass").value){E.textContent="Escribe tu correo y tu contraseña.";return}
+  if(!u){E.textContent="No hay una cuenta con ese correo en este dispositivo. Crea una cuenta.";return}
+  if(await hash(u.salt+$("#lPass").value)!==u.hash){E.textContent="La contraseña no coincide. Inténtalo de nuevo.";return}
+  LS.set("emp_session",email);start(email,u);
+}
+$("#signupBtn").onclick=doSignup;$("#loginBtn").onclick=doLogin;
+$("#signupForm").addEventListener("keydown",e=>{if(e.key==="Enter")doSignup()});
+$("#loginForm").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
+if(!PERSIST)$("#previewWarn").classList.remove("hidden");
+function start(email,u){
+  ME={email,...(u||users()[email]||{name:email})};loadUD();
+  $("#auth").classList.add("hidden");$("#app").classList.remove("hidden");
+  $("#avatar").textContent=initials(ME.name)||"?";
+  buildNav();renderChip();route();
+}
+function logout(){LS.set("emp_session",null);ME=null;$("#app").classList.add("hidden");$("#auth").classList.remove("hidden");location.hash="#/inicio"}
+
+/* ======================== MENÚ ======================== */
+const MENU=[
+ {id:"inicio",l:"Inicio",i:"home",href:"#/inicio"},
+ {id:"vehiculos",l:"Vehículos",i:"car",c:"var(--brand)",items:[["Buscar vehículo","#/vehiculos"],["Mis vehículos","#/mis-vehiculos"],["Agregar vehículo","#/agregar"]]},
+ {id:"motor",l:"Motor",i:"engine",c:"var(--motor)",items:[["Distribución","#/sistema/distribucion"],["Junta de culata",null],["Refrigeración",null],["Lubricación",null]]},
+ {id:"elec",l:"Electricidad",i:"bolt",c:"var(--elec)",items:[["Sensores",null],["Diagramas eléctricos",null],["Carga y arranque",null],["Red CAN",null]]},
+ {id:"frenos",l:"Frenos",i:"disc",c:"var(--frenos)",items:[["Frenos de disco",null],["ABS",null],["Freno electrónico",null]]},
+ {id:"trans",l:"Transmisión",i:"gear",c:"var(--trans)",items:[["Manual y embrague",null],["Automática",null],["CVT",null],["Doble embrague",null]]},
+ {id:"susp",l:"Suspensión y dirección",i:"spring",c:"var(--susp)",items:[["Suspensión delantera",null],["Suspensión trasera",null],["Dirección",null]]},
+ {id:"diag",l:"Diagnóstico",i:"scan",c:"var(--diag)",items:[["Códigos DTC","#/dtc"],["Por síntoma","#/sintomas"]]},
+ {id:"mant",l:"Mantenimiento",i:"cal",c:"var(--mant)",items:[["Plan por kilometraje","#/mantenimiento"],["Recepción y entrega",null]]},
+ {id:"herr",l:"Herramientas",i:"wrench",c:"var(--brand)",items:[["Conversor de torque","#/conversor"],["Tablas generales de torque",null]]},
+ {id:"taller",l:"Mi taller",i:"shop",c:"var(--taller)",items:[["Clientes",null],["Cotizaciones",null],["Órdenes de trabajo",null]]},
+ {id:"cuenta",l:"Mi cuenta",i:"user",items:[["Perfil","#/perfil"],["Cerrar sesión","#/salir"]]},
+];
+function buildNav(){
+  $("#nav").innerHTML=MENU.map(g=>{
+    if(!g.items)return `<div class="grp" data-g="${g.id}" style="--c:${g.c||'var(--brand)'}"><button onclick="location.hash='${g.href}'"><span class="ic">${svgI(g.i)}</span><span class="lbl">${g.l}</span></button></div>`;
+    return `<div class="grp" data-g="${g.id}" style="--c:${g.c||'var(--brand)'}"><button aria-expanded="false"><span class="ic">${svgI(g.i)}</span><span class="lbl">${g.l}</span><span class="chev">${svgI("chev",14)}</span></button>
+    <div class="sub"><div>${g.items.map(([l,h])=>h?`<a href="${h}">${l}</a>`:`<a href="#/pronto/${encodeURIComponent(l)}">${l}<span class="soon">Pronto</span></a>`).join("")}</div></div></div>`;
+  }).join("");
+  document.querySelectorAll(".grp>button").forEach(b=>{
+    if(b.parentElement.querySelector(".sub"))b.onclick=()=>{
+      if($("#app").classList.contains("collapsed"))$("#app").classList.remove("collapsed");
+      const g=b.parentElement,o=!g.classList.contains("open");g.classList.toggle("open",o);b.setAttribute("aria-expanded",o)};
+  });
+}
+function markNav(group,href){
+  document.querySelectorAll(".grp").forEach(g=>{const a=g.dataset.g===group;g.classList.toggle("active",a);g.classList.toggle("open",a)});
+  document.querySelectorAll(".sub a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")===href));
+}
+$("#collapseBtn").onclick=()=>$("#app").classList.toggle("collapsed");
+$("#themeBtn").onclick=()=>{const d=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=d;LS.set("emp_theme",d)};
+$("#mobBtn").onclick=()=>$("#app").classList.toggle("mob-open");
+$("#userBtn").onclick=()=>location.hash="#/perfil";
+
+/* ======================== VEHÍCULO ACTUAL ======================== */
+function vehLabel(v){return v?`${v.brand} ${v.model}`:"Elige un vehículo"}
+function renderChip(){
+  const v=UD.veh,b=v&&VEH.find(x=>x.n===v.brand);
+  $("#vehChip").innerHTML=`<span class="sw" style="background:${b?b.c:'var(--muted)'}">${v?initials(v.brand):svgI("car",16)}</span><div><b>${vehLabel(v)}</b><small>${v?`${v.year} · ${v.engine}`:"Marca, modelo, año y motor"}</small></div>`;
+}
+function setVeh(v){UD.veh=v;UD.recent=[v,...UD.recent.filter(r=>JSON.stringify(r)!==JSON.stringify(v))].slice(0,8);saveUD();renderChip()}
+const vehHref=v=>`#/vehiculo/${encodeURIComponent(v.brand)}/${encodeURIComponent(v.model)}/${v.year}/${encodeURIComponent(v.code)}`;
+
+/* ======================== BÚSQUEDA ======================== */
+const INDEX=[];
+VEH.forEach(b=>{INDEX.push({k:"Marca",t:b.n,h:"#/vehiculos/"+b.id,c:b.c});b.m.forEach(m=>INDEX.push({k:"Modelo",t:`${b.n} ${m.n}`,s:m.g.map(g=>g.y.join("–")).join(", "),h:`#/vehiculos/${b.id}/${encodeURIComponent(m.n)}`,c:b.c}))});
+DATA.codes.forEach(c=>INDEX.push({k:"DTC",t:`${c.c} · ${c.t}`,s:c.s,h:"#/dtc/"+c.c,c:"var(--diag)"}));
+DATA.flows.forEach((f,i)=>INDEX.push({k:"Síntoma",t:f.t,s:"Diagnóstico guiado",h:"#/sintomas/"+i,c:"var(--diag)"}));
+[["Distribución","Diagrama interactivo y procedimiento","#/sistema/distribucion","var(--motor)"],["Cadena de distribución","Motor › Distribución","#/sistema/distribucion","var(--motor)"],["Tensor","Motor › Distribución","#/sistema/distribucion","var(--motor)"],["Conversor de torque","N·m, lb·ft, kgf·m","#/conversor","var(--brand)"],["Mantenimiento por kilometraje","Plan orientativo","#/mantenimiento","var(--mant)"]].forEach(([t,s,h,c])=>INDEX.push({k:"Tema",t,s,h,c}));
+const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+let selIdx=-1;
+$("#q").addEventListener("input",()=>{
+  const q=norm($("#q").value.trim());const R=$("#results");if(!q){R.classList.add("hidden");return}
+  const terms=q.split(/\s+/);const hits=INDEX.filter(x=>terms.every(t=>norm(x.t+" "+(x.s||"")+" "+x.k).includes(t))).slice(0,14);
+  selIdx=-1;
+  R.innerHTML=hits.length?hits.map(x=>`<a href="${x.h}"><span class="tag" style="background:${x.c}">${x.k}</span><span><b>${x.t}</b>${x.s?`<br><small class="muted">${x.s}</small>`:""}</span></a>`).join(""):`<div class="grp-t">Sin resultados para "${$("#q").value}". Prueba con la marca, el modelo o un código como P0171.</div>`;
+  R.classList.remove("hidden");
+});
+$("#q").addEventListener("keydown",e=>{
+  const as=[...document.querySelectorAll("#results a")];if(!as.length)return;
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();selIdx=(selIdx+(e.key==="ArrowDown"?1:-1)+as.length)%as.length;as.forEach((a,i)=>a.classList.toggle("sel",i===selIdx))}
+  if(e.key==="Enter"){e.preventDefault();(as[selIdx]||as[0]).click()}
+  if(e.key==="Escape")$("#results").classList.add("hidden");
+});
+document.addEventListener("click",e=>{if(!e.target.closest(".search"))$("#results").classList.add("hidden")});
+document.addEventListener("keydown",e=>{if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();$("#q").focus()}});
+
+/* ======================== RUTAS ======================== */
+const V=$("#view");
+function crumbs(list){$("#crumbs").innerHTML=[["Inicio","#/inicio"],...list].map(([l,h],i,a)=>i<a.length-1?`<a href="${h}">${l}</a><span>›</span>`:`<span style="color:var(--ink)">${l}</span>`).join("")}
+function show(html,group,href,cr){V.innerHTML=html;V.classList.remove("view-enter");void V.offsetWidth;V.classList.add("view-enter");markNav(group,href);crumbs(cr||[]);window.scrollTo(0,0);$("#app").classList.remove("mob-open");$("#results").classList.add("hidden");$("#q").value=""}
+function route(){
+  if(!ME)return;
+  const p=location.hash.replace(/^#\/?/,"").split("/").map(decodeURIComponent);
+  const r=p[0]||"inicio";
+  ({inicio:pHome,vehiculos:pVehiculos,vehiculo:pVehiculo,"mis-vehiculos":pMine,agregar:pAdd,sistema:pDistribucion,dtc:pDTC,sintomas:pSintomas,mantenimiento:pMant,conversor:pConv,perfil:pPerfil,pronto:pPronto,salir:()=>logout()}[r]||pHome)(p);
+}
+window.addEventListener("hashchange",route);
+
+/* ---------- INICIO ---------- */
+function gearPath(cx,cy,r,teeth,depth=.13){let d="";const N=teeth*4;for(let k=0;k<=N;k++){const a=2*Math.PI*k/N,rr=(k%4<2)?r:r*(1-depth);d+=(k?"L":"M")+(cx+rr*Math.cos(a)).toFixed(1)+" "+(cy+rr*Math.sin(a)).toFixed(1)}return d+"Z"}
+function brandOpts(){return VEH.map(b=>`<option value="${b.id}">${b.n}</option>`).join("")}
+function pHome(){
+  const first=ME.name.split(" ")[0];
+  const tiles=[["Distribución","Diagrama interactivo y paso a paso","#/sistema/distribucion","motor","engine"],["Códigos DTC","100 códigos con diagnóstico","#/dtc","diag","scan"],["Diagnóstico por síntoma","Preguntas Sí / No hasta la causa","#/sintomas","diag","pulse"],["Mantenimiento","Plan por kilometraje","#/mantenimiento","mant","cal"],["Sensores","Valores típicos y pruebas","#/pronto/Sensores","elec","bolt"],["Frenos","Discos, pastillas, ABS","#/pronto/Frenos","frenos","disc"],["Transmisión","Manual, automática, CVT","#/pronto/Transmisión","trans","gear"],["Conversor de torque","N·m, lb·ft, kgf·m","#/conversor","motor","wrench"]];
+  show(`
+  <section class="hero">
+    <svg class="gears" viewBox="0 0 360 360" aria-hidden="true">
+      <g class="spin"><path class="rot" style="--d:22s" d="${gearPath(220,140,110,18)}" fill="none" stroke="#FF6B1A" stroke-width="2.5" opacity=".9"/>
+      <circle cx="220" cy="140" r="38" fill="none" stroke="#FF6B1A" stroke-width="2" opacity=".6"/>
+      <path class="rot" style="--d:-12s;animation-direction:reverse" d="${gearPath(92,262,62,11)}" fill="none" stroke="#7FA7E0" stroke-width="2" opacity=".7"/></g>
+    </svg>
+    <h1>Hola, ${first}. ¿Qué auto tienes en el elevador?</h1>
+    <p>Elige marca, modelo, año y motor para ver su información, o busca un código o síntoma arriba.</p>
+    <form class="finder" id="finder">
+      <div><label for="fB">Marca</label><select id="fB"><option value="">Elige marca</option>${brandOpts()}</select></div>
+      <div><label for="fM">Modelo</label><select id="fM" disabled><option>Modelo</option></select></div>
+      <div><label for="fY">Año</label><select id="fY" disabled><option>Año</option></select></div>
+      <div><label for="fE">Motor</label><select id="fE" disabled><option>Motor</option></select></div>
+      <button type="button" class="btn btn-primary" id="fGo" disabled>Abrir vehículo</button>
+    </form>
+  </section>
+  ${UD.recent.length?`<div class="sect-h"><h2>Vehículos recientes</h2><a href="#/mis-vehiculos" class="muted">Ver todos</a></div>
+  <div class="recent">${UD.recent.map(v=>{const b=VEH.find(x=>x.n===v.brand);return `<a href="${vehHref(v)}" class="card pad" style="padding:14px;display:flex;gap:12px;align-items:center"><span class="avatar" style="border-radius:10px;background:${b?b.c:'var(--nav)'}">${initials(v.brand)}</span><span><b>${v.brand} ${v.model}</b><br><small class="muted">${v.year} · ${v.engine}</small></span></a>`}).join("")}</div>`:""}
+  <div class="sect-h"><h2>Sistemas y herramientas</h2></div>
+  <div class="grid g4">${tiles.map(([t,s,h,c,i])=>`<a class="sys-tile" href="${h}" style="--c:${SYS_COLORS[c]}"><span class="bar"></span><span class="ic">${svgI(i,24)}</span><b>${t}</b><small>${s}</small></a>`).join("")}</div>
+  `,"inicio","#/inicio",[["Panel",""]].slice(1));
+  wireFinder();
+}
+function wireFinder(){
+  const fB=$("#fB"),fM=$("#fM"),fY=$("#fY"),fE=$("#fE"),go=$("#fGo");
+  const b=()=>VEH.find(x=>x.id===fB.value),m=()=>b()&&b().m.find(x=>x.n===fM.value);
+  fB.onchange=()=>{fM.innerHTML=`<option value="">Elige modelo</option>`+(b()?b().m.map(x=>`<option>${x.n}</option>`).join(""):"");fM.disabled=!b();fY.disabled=fE.disabled=go.disabled=true;fY.innerHTML="<option>Año</option>";fE.innerHTML="<option>Motor</option>"};
+  fM.onchange=()=>{const mm=m();let ys=[];if(mm)mm.g.forEach(g=>{for(let y=g.y[1];y>=g.y[0];y--)ys.push(y)});fY.innerHTML=`<option value="">Elige año</option>`+ys.map(y=>`<option>${y}</option>`).join("");fY.disabled=!mm;fE.disabled=go.disabled=true};
+  fY.onchange=()=>{const y=+fY.value,g=m()&&m().g.find(g=>y>=g.y[0]&&y<=g.y[1]);fE.innerHTML=`<option value="">Elige motor</option>`+(g?g.e.map(e=>`<option value="${e[0]}">${e[1]} (${e[0]})</option>`).join(""):"");fE.disabled=!g;go.disabled=true};
+  fE.onchange=()=>go.disabled=!fE.value;
+  go.onclick=()=>{const y=+fY.value,g=m().g.find(g=>y>=g.y[0]&&y<=g.y[1]),en=g.e.find(x=>x[0]===fE.value);
+    const v={brand:b().n,model:fM.value,year:y,code:en[0],engine:en[1],fuel:en[2]};setVeh(v);location.hash=vehHref(v)};
+}
+
+/* ---------- VEHÍCULOS (búsqueda paso a paso) ---------- */
+function pVehiculos(p){
+  const b=VEH.find(x=>x.id===p[1]),m=b&&b.m.find(x=>x.n===p[2]);
+  const st=["Marca","Modelo","Año","Motor"],cur=m?2:b?1:0;
+  let body="";
+  if(!b)body=`<div class="brands">${VEH.map(x=>`<a class="brand" href="#/vehiculos/${x.id}" style="--bc:${x.c};text-decoration:none"><span class="sw">${initials(x.n)}</span><span><b>${x.n}</b><br><small class="muted">${x.m.length} modelo${x.m.length>1?"s":""}</small></span></a>`).join("")}</div>
+   <div class="slot" style="margin-top:18px"><span><b>¿No encuentras el vehículo?</b><br><small class="muted">Agrégalo a tu cuenta con sus datos.</small></span><a class="btn btn-ghost btn-sm" href="#/agregar">Agregar vehículo</a></div>`;
+  else if(!m)body=`<div class="opt-list">${b.m.map(x=>`<a class="opt" style="text-decoration:none" href="#/vehiculos/${b.id}/${encodeURIComponent(x.n)}"><b>${x.n}</b><small class="muted">${x.g.map(g=>g.y.join("–")).join(" · ")}</small></a>`).join("")}</div>`;
+  else{
+    body=m.g.map(g=>`<h3 style="margin:8px 0 10px">${g.y[0]}–${g.y[1]}</h3><div class="opt-list" style="margin-bottom:18px">${g.e.map(e=>`<button class="opt" data-y="${g.y[1]}" data-e="${e[0]}"><b>${e[1]}</b><small class="muted">Código ${e[0]} · ${FUEL[e[2]]}</small></button>`).join("")}</div>`).join("")+
+    `<p class="muted">Elige el motor. Luego puedes cambiar el año exacto en la ficha del vehículo.</p>`;
+  }
+  show(`<h1>Buscar vehículo</h1><div class="steps">${st.map((s,i)=>`<span class="${i===cur?"on":i<cur?"done":""}">${s}${i===0&&b?": "+b.n:""}${i===1&&m?": "+m.n:""}</span>`).join("")}</div>${body}`,
+   "vehiculos","#/vehiculos",[["Vehículos","#/vehiculos"],...(b?[[b.n,"#/vehiculos/"+b.id]]:[]),...(m?[[m.n,""]]:[])]);
+  if(m)V.querySelectorAll(".opt[data-e]").forEach(o=>o.onclick=()=>{const g=m.g.find(g=>g.y[1]==o.dataset.y),e=g.e.find(x=>x[0]===o.dataset.e);
+    const v={brand:b.n,model:m.n,year:g.y[1],code:e[0],engine:e[1],fuel:e[2]};setVeh(v);location.hash=vehHref(v)});
+}
+
+/* ---------- FICHA DEL VEHÍCULO ---------- */
+const MANT={
+ G:[["Aceite de motor y filtro","5.000–10.000 km"],["Filtro de aire","15.000–20.000 km"],["Filtro de cabina","15.000 km o 1 año"],["Bujías (iridio)","60.000–100.000 km"],["Líquido de frenos","Cada 2 años"],["Refrigerante (larga duración)","100.000 km o 5 años"],["Correa de accesorios","Revisar cada 40.000 km"],["Correa de distribución (si aplica)","Según fabricante"],["Rotación de llantas","10.000 km"]],
+ D:[["Aceite de motor y filtro","5.000–10.000 km"],["Filtro de combustible / separador de agua","20.000–40.000 km; drenar agua en cada servicio"],["Filtro de aire","10.000–20.000 km (más en polvo)"],["Líquido de frenos","Cada 2 años"],["Refrigerante","100.000 km o 5 años"],["Inspección de EGR y DPF (si aplica)","Cada 40.000 km"],["Rotación de llantas","10.000 km"]],
+ H:[["Aceite de motor y filtro","10.000 km o 1 año"],["Filtro de aire","20.000 km"],["Filtro de ventilación de batería híbrida","Revisar cada servicio"],["Líquido de frenos","Cada 2 años"],["Refrigerante del inversor","Según fabricante"],["Rotación de llantas","10.000 km"]]
+};
+function pVehiculo(p){
+  const v={brand:p[1],model:p[2],year:+p[3],code:p[4]};
+  const b=VEH.find(x=>x.n===v.brand);let en=null,gen=null;
+  const mm=b&&b.m.find(x=>x.n===v.model);
+  if(mm)mm.g.forEach(g=>g.e.forEach(e=>{if(e[0]===v.code){en=e;gen=g}}));
+  const mine=UD.mine.find(x=>x.brand===v.brand&&x.model===v.model&&x.code===v.code);
+  v.engine=en?en[1]:(mine?mine.engine:v.code);v.fuel=en?en[2]:(mine?mine.fuel:"G");
+  if(!UD.veh||vehHref(UD.veh)!==vehHref(v))setVeh(v);
+  const key=vehHref(v),color=b?b.c:"var(--nav)";
+  const years=gen?Array.from({length:gen.y[1]-gen.y[0]+1},(_,i)=>gen.y[1]-i):[v.year];
+  show(`
+  <div class="veh-head"><svg class="stripe" viewBox="0 0 200 100" preserveAspectRatio="none"><path d="M40 0h160v100H0z" fill="${color}"/></svg>
+    <span class="sw" style="background:${color}">${initials(v.brand)}</span>
+    <div style="flex:1;min-width:0"><h1 style="font-size:36px">${v.brand} ${v.model}</h1>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <label class="pill">Año <select id="yearSel" style="border:0;background:none;font-weight:700">${years.map(y=>`<option ${y===v.year?"selected":""}>${y}</option>`).join("")}</select></label>
+        <span class="pill">Motor ${v.engine}</span><span class="pill">Código ${v.code}</span><span class="pill">${FUEL[v.fuel]}</span></div></div>
+  </div>
+  <div class="tabs" role="tablist">${["Resumen","Mantenimiento","Sistemas","Códigos DTC","Notas del taller"].map((t,i)=>`<button class="${i?"":"on"}" data-t="${i}">${t}</button>`).join("")}</div>
+  <div id="tabBody"></div>`,"vehiculos","#/vehiculos",[["Vehículos","#/vehiculos"],[v.brand,b?"#/vehiculos/"+b.id:"#/vehiculos"],[`${v.model} ${v.year}`,""]]);
+  $("#yearSel").onchange=e=>{location.hash=vehHref({...v,year:+e.target.value})};
+  const tabs={
+   0:()=>`<div class="grid g2">
+     <div class="card pad"><h3>Datos del fabricante</h3><p class="muted" style="margin:6px 0 14px">Valores exactos para este motor: confírmalos siempre en la información oficial.</p>
+       <table class="t"><tr><th>Dato</th><th>Valor</th></tr>${["Aceite recomendado","Capacidad de aceite con filtro","Refrigerante","Bujías / calibración","Torque de ruedas","Tipo de distribución"].map(d=>`<tr><td>${d}</td><td class="muted">Consultar ficha oficial</td></tr>`).join("")}</table>
+       <div class="slot" style="margin-top:14px"><span><b>Ficha técnica oficial</b><br><small class="muted">[INSERTAR ENLACE]</small></span><a class="btn btn-primary btn-sm" href="#" onclick="toast('Agrega aquí el enlace de la ficha oficial');return false">Abrir</a></div></div>
+     <div class="card pad"><h3>Accesos rápidos</h3><div class="grid g2" style="margin-top:12px">
+       ${[["Distribución","#/sistema/distribucion","motor","engine"],["Códigos DTC","#/dtc","diag","scan"],["No arranca","#/sintomas/0","diag","pulse"],["Mantenimiento","#tab1","mant","cal"]].map(([t,h,c,i])=>`<a class="sys-tile" href="${h}" ${h==="#tab1"?'data-tab="1"':""} style="--c:${SYS_COLORS[c]};padding:14px"><span class="ic">${svgI(i,22)}</span><b style="font-size:17px">${t}</b></a>`).join("")}</div></div></div>`,
+   1:()=>`<div class="card pad"><h3>Plan orientativo · ${FUEL[v.fuel]}</h3><p class="muted" style="margin:6px 0 14px">Intervalos típicos para uso normal. En uso severo (polvo, calor, tráfico) acórtalos. Prevalece el plan del fabricante.</p>
+      <table class="t"><tr><th style="width:36px"></th><th>Servicio</th><th>Intervalo orientativo</th></tr>${MANT[v.fuel].map((r,i)=>{const ck=(UD.checks[key]||{})[i];return `<tr><td><input type="checkbox" data-ck="${i}" ${ck?"checked":""} aria-label="Hecho"></td><td>${r[0]}</td><td>${r[1]}</td></tr>`}).join("")}</table>
+      <p class="muted" style="font-size:13px;margin-top:10px">Marca lo que ya hiciste en este vehículo: se guarda en tu cuenta.</p></div>`,
+   2:()=>`<div class="grid g3">${[["Distribución","Diagrama interactivo","#/sistema/distribucion","motor","engine",1],["Sensores","MAP, MAF, CKP, O2…","","elec","bolt"],["Frenos","Discos, pastillas, ABS","","frenos","disc"],["Transmisión","Caja y embrague","","trans","gear"],["Suspensión","Holguras y alineación","","susp","spring"],["Refrigeración","Bomba, termostato","","motor","engine"]].map(([t,s,h,c,i,ok])=>`<a class="sys-tile" href="${h||"#/pronto/"+t}" style="--c:${SYS_COLORS[c]}"><span class="bar"></span><span class="ic">${svgI(i,24)}</span><b>${t}</b><small>${ok?s:s+" · próximamente"}</small></a>`).join("")}</div>`,
+   3:()=>`<div class="card pad"><h3>Códigos frecuentes por sistema</h3><p class="muted" style="margin:6px 0 14px">Los códigos genéricos P0 aplican a todas las marcas. Los P1, B, C y U pueden cambiar según fabricante.</p>
+      <div class="dtc-list">${DATA.codes.filter(c=>v.fuel==="D"?/P0087|P0088|P0093|P0234|P0299|P2002|P2463|P0401|P242F|P0101|P0335|P0340/.test(c.c):/P0300|P0171|P0420|P0442|P0455|P0128|P0016|P0011|P0101|P0335|P0340|P0505/.test(c.c)).map(dtcItem).join("")}</div></div>`,
+   4:()=>`<div class="card pad"><h3>Notas del taller</h3><p class="muted" style="margin:6px 0 12px">Apunta lo que encontraste en este vehículo: fallas, piezas usadas, medidas. Se guarda en tu cuenta.</p>
+      <div class="field"><textarea id="noteTxt" rows="8" placeholder="Ej.: 12/03 — cliente reporta tironeo. P0302, bobina cil. 2 cambiada.">${(UD.notes[key]||"").replace(/</g,"&lt;")}</textarea></div><button class="btn btn-primary" id="noteSave">Guardar nota</button></div>`
+  };
+  const setTab=i=>{document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t==i));$("#tabBody").innerHTML=tabs[i]();
+    $("#tabBody").querySelectorAll("[data-tab]").forEach(a=>a.onclick=e=>{e.preventDefault();setTab(a.dataset.tab)});
+    $("#tabBody").querySelectorAll("[data-ck]").forEach(c=>c.onchange=()=>{UD.checks[key]=UD.checks[key]||{};UD.checks[key][c.dataset.ck]=c.checked;saveUD()});
+    const ns=$("#noteSave");if(ns)ns.onclick=()=>{UD.notes[key]=$("#noteTxt").value;saveUD();toast("Nota guardada")};};
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+  setTab(0);
+}
+function pMine(){
+  const list=[...UD.mine.map(x=>({...x,own:1})),...UD.recent.filter(r=>!UD.mine.some(m=>vehHref(m)===vehHref(r)))];
+  show(`<h1>Mis vehículos</h1><p class="muted">Los que agregaste y los que abriste hace poco.</p>
+   ${list.length?`<div class="grid g3" style="margin-top:14px">${list.map(v=>{const b=VEH.find(x=>x.n===v.brand);return `<a class="card pad" href="${vehHref(v)}" style="text-decoration:none;display:flex;gap:14px;align-items:center"><span class="avatar" style="border-radius:12px;width:48px;height:48px;background:${b?b.c:'var(--taller)'}">${initials(v.brand)}</span><span><b>${v.brand} ${v.model}</b><br><small class="muted">${v.year} · ${v.engine}</small>${v.own?'<br><span class="pill" style="margin-top:4px">Agregado por ti</span>':""}</span></a>`}).join("")}</div>`:
+   `<div class="slot" style="margin-top:14px"><span><b>Todavía no tienes vehículos.</b><br><small class="muted">Busca uno o agrégalo con sus datos.</small></span><a class="btn btn-primary btn-sm" href="#/vehiculos">Buscar vehículo</a></div>`}`,"vehiculos","#/mis-vehiculos",[["Vehículos","#/vehiculos"],["Mis vehículos",""]]);
+}
+function pAdd(){
+  show(`<h1>Agregar vehículo</h1><p class="muted">Para autos que no están en la lista. Queda guardado en tu cuenta.</p>
+  <form class="card pad" id="addF" style="max-width:640px;margin-top:14px"><div class="grid g2">
+   <div class="field"><label>Marca</label><input id="aB" required list="bl"><datalist id="bl">${VEH.map(b=>`<option>${b.n}</option>`).join("")}</datalist></div>
+   <div class="field"><label>Modelo</label><input id="aM" required></div>
+   <div class="field"><label>Año</label><input id="aY" type="number" min="1980" max="2030" required></div>
+   <div class="field"><label>Combustible</label><select id="aF"><option value="G">Gasolina</option><option value="D">Diésel</option><option value="H">Híbrido</option></select></div>
+   <div class="field"><label>Motor (descripción)</label><input id="aE" placeholder="Ej.: 1.6 gasolina" required></div>
+   <div class="field"><label>Código de motor</label><input id="aC" placeholder="Ej.: HR16DE" required></div></div>
+   <button type="button" class="btn btn-primary" id="addBtn">Guardar vehículo</button></form>`,"vehiculos","#/agregar",[["Vehículos","#/vehiculos"],["Agregar",""]]);
+  $("#addBtn").onclick=()=>{if(!["aB","aM","aY","aE","aC"].every(i=>$("#"+i).value.trim())){toast("Completa todos los campos");return}const v={brand:$("#aB").value.trim(),model:$("#aM").value.trim(),year:+$("#aY").value,fuel:$("#aF").value,engine:$("#aE").value.trim(),code:$("#aC").value.trim()};
+    UD.mine.push(v);saveUD();toast("Vehículo guardado");location.hash=vehHref(v)};
+}
+
+/* ---------- SISTEMA: DISTRIBUCIÓN (diagrama interactivo) ---------- */
+const PARTS={
+ crank:{n:"Piñón del cigüeñal",f:"Mueve toda la distribución. Gira dos veces por cada vuelta de los árboles de levas.",s:["Ruido metálico al arrancar si la chaveta está dañada","Código de correlación (P0016)"],r:["Verifica la marca de sincronización con el cilindro 1 en PMS","Revisa la chaveta y el estado de los dientes"]},
+ camIn:{n:"Engrane de levas de admisión",f:"Abre las válvulas de admisión. En muchos motores lleva variador de fase (VVT).",s:["Ralentí inestable","Códigos P0011 / P0014","Falta de potencia"],r:["Comprueba la marca respecto a la culata","Revisa el variador: ruido al arrancar en frío"]},
+ camEx:{n:"Engrane de levas de escape",f:"Abre las válvulas de escape, sincronizado con el de admisión.",s:["Códigos P0014 / P0017","Consumo alto"],r:["Bloquea ambos árboles con la herramienta de fábrica antes de aflojar"]},
+ chain:{n:"Cadena de distribución",f:"Transmite el giro del cigüeñal a los árboles de levas.",s:["Cascabeleo de 2–5 segundos al arrancar en frío","Códigos de correlación P0016–P0019","Marcas desfasadas"],r:["Mide el estiramiento con el escáner (desfase de levas) o físicamente","Cambia cadena, guías y tensor juntos"]},
+ tens:{n:"Tensor hidráulico",f:"Empuja la guía móvil con presión de aceite para mantener la cadena tensa.",s:["Ruido al arrancar","Tensor muy extendido"],r:["Comprime y traba con su pasador antes de desmontar","Usa el aceite especificado: la viscosidad afecta al tensor"]},
+ guideT:{n:"Guía móvil (zapata del tensor)",f:"Transmite la fuerza del tensor a la cadena.",s:["Ranuras profundas","Trozos de plástico en el cárter"],r:["Revisa desgaste y grietas; se cambia con la cadena"]},
+ guideF:{n:"Guía fija",f:"Controla la vibración del lado tenso de la cadena.",s:["Ruido de roce","Fracturas en anclajes"],r:["Cambia junto con la cadena"]},
+ marks:{n:"Marcas de sincronización",f:"Puntos de referencia del cigüeñal y de las levas. Con el cilindro 1 en PMS deben coincidir.",s:["Motor no arranca o pierde potencia si están desfasadas"],r:["Nunca confíes solo en los eslabones de color: usa también las herramientas de bloqueo"]}
+};
+const PROC=[
+ {t:"Prepara el vehículo",p:[],d:"Desconecta la batería, deja enfriar el motor y retira los componentes que dan acceso a la tapa de distribución.",w:"Trabaja con el motor frío: el aceite y el refrigerante calientes causan quemaduras."},
+ {t:"Lleva el cilindro 1 a PMS",p:["crank","marks"],d:"Gira el cigüeñal en el sentido normal de giro hasta que la marca del piñón coincida con su referencia.",tip:"Gira siempre con la llave en el perno del cigüeñal, nunca con los engranes de levas."},
+ {t:"Bloquea los árboles de levas",p:["camIn","camEx","marks"],d:"Instala la herramienta de bloqueo de levas y el pasador del cigüeñal si el motor lo usa.",w:"Al aflojar los engranes, sostén siempre con la herramienta de contra-apoyo."},
+ {t:"Comprime y traba el tensor",p:["tens","guideT"],d:"Empuja el émbolo del tensor y colócale el pasador de bloqueo. Luego retira el tensor."},
+ {t:"Retira guías y cadena",p:["guideT","guideF","chain"],d:"Retira la guía móvil, la guía fija y la cadena. Revisa el desgaste de las guías y los dientes."},
+ {t:"Instala la cadena nueva",p:["chain","crank","camIn","camEx"],d:"Monta la cadena respetando las marcas: lado tenso primero, sin holgura entre cigüeñal y escape.",tip:"Cambia cadena, guías y tensor como kit. Una cadena nueva sobre guías gastadas dura poco."},
+ {t:"Instala guías y libera el tensor",p:["guideF","guideT","tens"],d:"Coloca las guías, instala el tensor y retira su pasador para que tense la cadena."},
+ {t:"Verifica girando a mano",p:["crank","camIn","camEx","marks"],d:"Retira las herramientas de bloqueo. Gira el cigüeñal dos vueltas completas a mano y comprueba que todas las marcas vuelven a coincidir.",w:"Si notas resistencia, detente: puede haber contacto entre válvulas y pistón."}
+];
+function beltGeom(C,pad){
+  const cx=C.reduce((a,c)=>a+c[0],0)/C.length,cy=C.reduce((a,c)=>a+c[1],0)/C.length;
+  const R=C.map(c=>[c[0],c[1],c[2]+pad]),spans=[];
+  for(let i=0;i<R.length;i++){const [x1,y1,r1]=R[i],[x2,y2,r2]=R[(i+1)%R.length];
+    const L=Math.hypot(x2-x1,y2-y1),th=Math.atan2(y2-y1,x2-x1),ph=Math.acos((r1-r2)/L);let best=null;
+    for(const sg of[1,-1]){const an=th+sg*ph,p1=[x1+r1*Math.cos(an),y1+r1*Math.sin(an)],p2=[x2+r2*Math.cos(an),y2+r2*Math.sin(an)];
+      const mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2,dd=Math.hypot(mx-cx,my-cy);if(!best||dd>best.dd)best={p1,p2,an,dd}}
+    spans.push(best)}
+  let d="";
+  for(let i=0;i<R.length;i++){const sp=spans[i],nx=spans[(i+1)%R.length],[x,y,r]=R[(i+1)%R.length];
+    d+=(i?"L":"M")+sp.p1.map(v=>v.toFixed(1)).join(" ")+"L"+sp.p2.map(v=>v.toFixed(1)).join(" ");
+    let a0=sp.an,a1=nx.an;let best=null;
+    for(const dir of[1,-1]){let da=((a1-a0)*dir%(2*Math.PI)+2*Math.PI)%(2*Math.PI);const am=a0+dir*da/2,dd=Math.hypot(x+r*Math.cos(am)-cx,y+r*Math.sin(am)-cy);if(!best||dd>best.dd)best={dir,da,dd}}
+    for(let k=1;k<=24;k++){const an=a0+best.dir*best.da*k/24;d+="L"+(x+r*Math.cos(an)).toFixed(1)+" "+(y+r*Math.sin(an)).toFixed(1)}}
+  return {d:d+"Z",spans};
+}
+function bandAlong(sp,off,t0,t1,w){
+  const [x1,y1]=sp.p1,[x2,y2]=sp.p2,nx=Math.cos(sp.an),ny=Math.sin(sp.an);
+  const P=t=>[x1+(x2-x1)*t+nx*off,y1+(y2-y1)*t+ny*off];
+  const a=P(t0),b=P(t1),bow=12,m=P((t0+t1)/2);m[0]+=nx*bow;m[1]+=ny*bow;
+  const o=(p,k)=>[p[0]+nx*w*k,p[1]+ny*w*k];
+  const f=p=>p.map(v=>v.toFixed(1)).join(" ");
+  return `M${f(a)}Q${f(m)} ${f(b)}L${f(o(b,1))}Q${f(o(m,1))} ${f(o(a,1))}Z`;
+}
+function distSVG(){
+  const g=(cx,cy,r,t)=>gearPath(cx,cy,r,t,.09);
+  const C=[[200,150,70],[400,150,70],[300,450,42]];
+  const B=beltGeom(C,5);
+  const left=B.spans[2],right=B.spans[1];
+  const gT=bandAlong(left,4,.12,.85,13),gF=bandAlong(right,4,.12,.85,13);
+  const tp=[(left.p1[0]+left.p2[0])/2+Math.cos(left.an)*34,(left.p1[1]+left.p2[1])/2+Math.sin(left.an)*34];
+  return `<svg viewBox="0 0 600 560" id="dsvg" role="img" aria-label="Diagrama de distribución por cadena">
+  <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0v8" stroke="var(--line)" stroke-width="2"/></pattern></defs>
+  <rect x="40" y="30" width="520" height="500" rx="26" fill="url(#hatch)" opacity=".45"/>
+  <text x="60" y="518" class="mark-lbl" style="fill:var(--muted);font-size:13px">Vista frontal · motor DOHC · esquema genérico</text>
+  <g class="part" data-p="chain" style="--c:var(--motor)">
+    <path d="${B.d}" fill="none" stroke="var(--ink)" stroke-width="10" stroke-linejoin="round" opacity=".9"/>
+    <path d="${B.d}" fill="none" stroke="var(--card)" stroke-width="4" stroke-dasharray="5 5" stroke-linejoin="round"/>
+    <path class="hl" d="${B.d}" stroke-linejoin="round"/></g>
+  <g class="part" data-p="camIn" style="--c:var(--motor)"><g class="rot" style="--d:16s"><path d="${g(200,150,70,26)}" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/></g>
+    <circle cx="200" cy="150" r="32" fill="var(--card2)" stroke="var(--ink)" stroke-width="2"/><circle cx="200" cy="150" r="8" fill="var(--ink)"/>
+    <circle class="hl" cx="200" cy="150" r="72"/><text x="200" y="250" text-anchor="middle" class="mark-lbl">Admisión</text></g>
+  <g class="part" data-p="camEx" style="--c:var(--motor)"><g class="rot" style="--d:16s"><path d="${g(400,150,70,26)}" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/></g>
+    <circle cx="400" cy="150" r="32" fill="var(--card2)" stroke="var(--ink)" stroke-width="2"/><circle cx="400" cy="150" r="8" fill="var(--ink)"/>
+    <circle class="hl" cx="400" cy="150" r="72"/><text x="400" y="250" text-anchor="middle" class="mark-lbl">Escape</text></g>
+  <g class="part" data-p="crank" style="--c:var(--motor)"><g class="rot" style="--d:8s"><path d="${g(300,450,42,16)}" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/></g>
+    <circle cx="300" cy="450" r="16" fill="var(--card2)" stroke="var(--ink)" stroke-width="2"/><circle class="hl" cx="300" cy="450" r="44"/>
+    <text x="370" y="478" class="mark-lbl">Cigüeñal</text></g>
+  <g class="part" data-p="guideT" style="--c:var(--trans)"><path d="${gT}" fill="var(--trans)"/><path class="hl" d="${gT}"/></g>
+  <g class="part" data-p="guideF" style="--c:var(--susp)"><path d="${gF}" fill="var(--susp)"/><path class="hl" d="${gF}"/></g>
+  <g class="part" data-p="tens" style="--c:var(--frenos)" transform="translate(${tp[0].toFixed(1)} ${tp[1].toFixed(1)}) rotate(${(left.an*180/Math.PI).toFixed(1)})">
+    <rect x="0" y="-15" width="46" height="30" rx="6" fill="var(--frenos)"/><rect x="-12" y="-7" width="14" height="14" rx="3" fill="var(--frenos)" opacity=".75"/>
+    <rect class="hl" x="-14" y="-17" width="62" height="34" rx="7"/></g>
+  <text x="${(tp[0]-8).toFixed(0)}" y="${(tp[1]+40).toFixed(0)}" class="mark-lbl" style="font-size:13px">Tensor</text>
+  <g class="part" data-p="marks" style="--c:var(--diag)">
+    ${[[200,150,70],[400,150,70],[300,450,42]].map(([x,y,r])=>`<path d="M${x} ${y-r+16} l-7 -12 h14z" fill="var(--diag)"/><circle class="hl" cx="${x}" cy="${y-r+10}" r="14"/>`).join("")}
+    <circle cx="200" cy="64" r="5" fill="var(--diag)"/><circle cx="400" cy="64" r="5" fill="var(--diag)"/></g>
+  </svg>`;
+}
+let procI=-1;
+function pDistribucion(){
+  show(`<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+    <div><h1>Distribución por cadena</h1><p class="muted" style="margin:6px 0 0">Toca una pieza para ver qué hace y cómo revisarla, o sigue el procedimiento paso a paso.</p></div>
+    <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" id="spinBtn">Girar motor</button><button class="btn btn-primary btn-sm" id="procBtn">Iniciar procedimiento</button></div></div>
+  <div class="diagram-wrap" style="margin-top:16px">
+    <div class="stage" id="stage">${distSVG()}</div>
+    <div>
+      <div class="card pad info" id="info"><h3>Elige una pieza</h3><p class="muted">Toca cualquier parte del diagrama: cadena, engranes, tensor, guías o marcas de sincronización.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${Object.entries(PARTS).map(([k,v])=>`<button class="pill" data-pick="${k}" style="cursor:pointer">${v.n}</button>`).join("")}</div></div>
+      <div class="card pad proc hidden" id="proc"></div>
+    </div>
+  </div>
+  <div class="warnbox" style="margin-top:16px">Esquema genérico con fines didácticos. Para el orden exacto, las herramientas y los torques de tu motor, consulta la información oficial del fabricante.</div>`,
+  "motor","#/sistema/distribucion",[["Motor","#/sistema/distribucion"],["Distribución",""]]);
+  procI=-1;
+  const stage=$("#stage");
+  V.querySelectorAll(".part").forEach(g=>g.onclick=()=>pick([g.dataset.p],g.dataset.p));
+  V.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>pick([b.dataset.pick],b.dataset.pick));
+  $("#spinBtn").onclick=()=>{stage.classList.toggle("spin");$("#spinBtn").textContent=stage.classList.contains("spin")?"Detener":"Girar motor"};
+  $("#procBtn").onclick=()=>{procI=0;renderProc()};
+}
+function pick(list,infoKey){
+  const stage=$("#stage");stage.classList.toggle("focus",list.length>0);
+  V.querySelectorAll(".part").forEach(g=>g.classList.toggle("sel",list.includes(g.dataset.p)));
+  if(infoKey){const x=PARTS[infoKey];$("#info").innerHTML=`<h3><span class="dot y"></span>${x.n}</h3><p style="margin:8px 0 0">${x.f}</p>
+    <div class="k">Síntomas cuando falla</div><ul>${x.s.map(s=>`<li>${s}</li>`).join("")}</ul>
+    <div class="k">Cómo revisarla</div><ul>${x.r.map(s=>`<li>${s}</li>`).join("")}</ul>
+    <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="pick([]);pDistribucionInfoReset()">Ver todas las piezas</button>`}
+}
+function pDistribucionInfoReset(){$("#info").innerHTML=`<h3>Elige una pieza</h3><p class="muted">Toca cualquier parte del diagrama.</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${Object.entries(PARTS).map(([k,v])=>`<button class="pill" data-pick="${k}" style="cursor:pointer">${v.n}</button>`).join("")}</div>`;V.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>pick([b.dataset.pick],b.dataset.pick))}
+function renderProc(){
+  const s=PROC[procI],P=$("#proc");P.classList.remove("hidden");
+  P.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><h3>Procedimiento general</h3><span class="muted">Paso ${procI+1} de ${PROC.length}</span></div>
+   <div class="proc-bar"><i style="width:${(procI+1)/PROC.length*100}%"></i></div>
+   <div class="proc-step" style="display:flex;gap:14px"><b class="n">${procI+1}</b><div><h3>${s.t}</h3><p style="margin:6px 0 0">${s.d}</p>
+   ${s.w?`<div class="warnbox">${s.w}</div>`:""}${s.tip?`<div class="tipbox"><b>Tip del taller:</b> ${s.tip}</div>`:""}</div></div>
+   <div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-ghost btn-sm" id="pPrev" ${procI?"":"disabled"}>Anterior</button><button class="btn btn-primary btn-sm" id="pNext">${procI<PROC.length-1?"Siguiente":"Terminar"}</button></div>`;
+  pick(s.p,null);
+  $("#pPrev").onclick=()=>{procI--;renderProc()};
+  $("#pNext").onclick=()=>{if(procI<PROC.length-1){procI++;renderProc()}else{P.classList.add("hidden");pick([]);toast("Procedimiento completado")}};
+  P.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* ---------- DTC ---------- */
+const dtcItem=c=>`<a class="dtc-item" href="#/dtc/${c.c}"><span class="code ${c.c[0]}">${c.c}</span><span><b>${c.t}</b><br><small class="muted">${c.s}</small></span></a>`;
+function pDTC(p){
+  const code=(p[1]||"").toUpperCase(),c=DATA.codes.find(x=>x.c===code);
+  if(c){
+    show(`<div class="dtc-detail"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><span class="code ${c.c[0]}">${c.c}</span><div><h1 style="font-size:34px">${c.t}</h1><span class="muted">${c.s} · ${c.g}</span></div></div>
+     <div class="grid g2" style="margin-top:18px">
+      <div class="card pad"><h3>Qué significa</h3><p>${c.sig}</p><div class="k" style="font-weight:700;color:var(--muted);font-size:12.5px;margin-top:10px">Síntomas</div><p style="margin:4px 0 0">${c.sin}</p>
+        <div style="display:flex;gap:18px;margin-top:14px;flex-wrap:wrap"><span>Dificultad: <span class="diff ${c.dif}">${c.dif}</span></span><span class="muted">Herramientas: ${c.her}</span></div></div>
+      <div class="card pad"><h3>Causas probables</h3><p class="muted" style="margin:4px 0 8px">De la más a la menos común</p><ol class="steps-list" style="--diag:var(--brand)">${c.cau.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+      <div class="card pad"><h3>Diagnóstico paso a paso</h3><ol class="steps-list">${c.dia.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+      <div class="card pad"><h3>Solución</h3><p>${c.sol}</p>${c.tip?`<div class="tipbox"><b>Tip del taller:</b> ${c.tip}</div>`:""}</div>
+     </div></div>`,"diag","#/dtc",[["Diagnóstico","#/dtc"],["Códigos DTC","#/dtc"],[c.c,""]]);return;
+  }
+  show(`<h1>Códigos DTC</h1><p class="muted">Escribe el código del escáner. Los 100 más comunes, con causas y diagnóstico.</p>
+   <div class="dtc-search"><input id="dq" placeholder="P0300" maxlength="6" value="${code}" aria-label="Código DTC"></div>
+   <div class="letters">${[["","Todos"],["P","P · Tren motriz"],["B","B · Carrocería"],["C","C · Chasis"],["U","U · Red"]].map(([l,t])=>`<button data-l="${l}" class="${l?"":"on"}">${t}</button>`).join("")}</div>
+   <div class="dtc-list" id="dl"></div>`,"diag","#/dtc",[["Diagnóstico","#/dtc"],["Códigos DTC",""]]);
+  let L="";const draw=()=>{const q=$("#dq").value.trim().toUpperCase();const r=DATA.codes.filter(c=>(!L||c.c[0]===L)&&(!q||c.c.includes(q)||norm(c.t).includes(norm(q))));
+    $("#dl").innerHTML=r.length?r.map(dtcItem).join(""):`<div class="slot" style="grid-column:1/-1"><span><b>No tenemos ${q} en la lista.</b><br><small class="muted">Revisa que esté bien escrito. Si es un código de fabricante (P1, B, C, U), búscalo en la información de la marca.</small></span></div>`};
+  $("#dq").oninput=draw;$("#dq").onkeydown=e=>{if(e.key==="Enter"){const x=DATA.codes.find(c=>c.c===$("#dq").value.trim().toUpperCase());if(x)location.hash="#/dtc/"+x.c}};
+  V.querySelectorAll(".letters button").forEach(b=>b.onclick=()=>{L=b.dataset.l;V.querySelectorAll(".letters button").forEach(x=>x.classList.toggle("on",x===b));draw()});
+  draw();$("#dq").focus();
+}
+
+/* ---------- SÍNTOMAS (flujo guiado) ---------- */
+function pSintomas(p){
+  const i=p[1];
+  if(i===undefined||!DATA.flows[i]){
+    show(`<h1>Diagnóstico por síntoma</h1><p class="muted">Elige lo que reporta el cliente. Te haremos preguntas de Sí o No hasta llegar a la causa.</p>
+     <div class="grid g3" style="margin-top:16px">${DATA.flows.map((f,k)=>`<a class="sys-tile" href="#/sintomas/${k}" style="--c:var(--diag)"><span class="bar"></span><span class="ic">${svgI("pulse",24)}</span><b>${f.t}</b><small>${Object.keys(f.n).length} pasos posibles</small></a>`).join("")}</div>`,"diag","#/sintomas",[["Diagnóstico","#/sintomas"],["Por síntoma",""]]);return;
+  }
+  const f=DATA.flows[i];let cur=f.start,trail=[];
+  show(`<div class="flow-card"><span class="pill">${f.t}</span><div id="fbody"></div></div>`,"diag","#/sintomas",[["Diagnóstico","#/sintomas"],["Por síntoma","#/sintomas"],[f.t,""]]);
+  const draw=()=>{const n=f.n[cur];if(!n){$("#fbody").innerHTML="<p>Fin del flujo.</p>";return}
+    const kinds={P:["Pregunta","var(--mant)"],A:["Acción","var(--warn)"],F:["Solución","var(--ok)"]};const [kl,kc]=kinds[n.k]||kinds.A;
+    $("#fbody").innerHTML=`<div class="card pad" style="margin-top:14px"><span class="kind" style="background:${kc}">${kl}</span><p class="q">${n.t.replace(/^Soluci[oó]n:\s*/i,"")}</p>
+     <div class="yn">${n.k==="P"?`<button class="btn btn-yes" data-go="${n.o.SI}">Sí</button><button class="btn btn-no" data-go="${n.o.NO}">No</button>`:n.o.SIGUE?`<button class="btn btn-primary" data-go="${n.o.SIGUE}">Hecho, continuar</button>`:`<a class="btn btn-primary" href="#/sintomas">Diagnosticar otro síntoma</a>`}
+     ${trail.length?`<button class="btn btn-ghost" id="back">Volver un paso</button>`:""}</div></div>
+     ${trail.length?`<div class="trail">${trail.map((t,k)=>`<span>${k+1}. ${t.a}</span>`).join("")}</div>`:""}`;
+    V.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{trail.push({id:cur,a:b.textContent});cur=b.dataset.go;draw()});
+    const bk=$("#back");if(bk)bk.onclick=()=>{cur=trail.pop().id;draw()};};
+  draw();
+}
+
+/* ---------- MANTENIMIENTO, CONVERSOR, PERFIL ---------- */
+function pMant(){
+  show(`<h1>Plan de mantenimiento</h1><p class="muted">Intervalos orientativos por tipo de motor. Prevalece siempre el plan del fabricante.</p>
+  <div class="grid g3" style="margin-top:16px">${Object.entries(MANT).map(([k,rows])=>`<div class="card pad"><h3>${FUEL[k]}</h3><table class="t" style="margin-top:10px">${rows.map(r=>`<tr><td>${r[0]}</td><td class="muted" style="white-space:nowrap">${r[1]}</td></tr>`).join("")}</table></div>`).join("")}</div>`,"mant","#/mantenimiento",[["Mantenimiento",""]]);
+}
+function pConv(){
+  show(`<h1>Conversor de torque</h1><p class="muted">Escribe un valor en cualquier unidad.</p>
+  <div class="card pad" style="max-width:640px;margin-top:14px"><div class="grid g3">${[["nm","N·m"],["lbft","lb·ft"],["kgfm","kgf·m"]].map(([k,l])=>`<div class="field"><label>${l}</label><input id="c_${k}" type="number" step="any" inputmode="decimal" style="font-family:var(--head);font-size:26px"></div>`).join("")}</div>
+  <p class="muted" style="font-size:13px">1 lb·ft = 1,3558 N·m · 1 kgf·m = 9,8067 N·m</p></div>`,"herr","#/conversor",[["Herramientas","#/conversor"],["Conversor de torque",""]]);
+  const F={nm:1,lbft:1.35582,kgfm:9.80665};
+  Object.keys(F).forEach(k=>$("#c_"+k).oninput=e=>{const nm=parseFloat(e.target.value)*F[k];Object.keys(F).forEach(o=>{if(o!==k)$("#c_"+o).value=isNaN(nm)?"":(nm/F[o]).toFixed(o==="kgfm"?2:1)})});
+}
+function pPerfil(){
+  show(`<h1>Mi cuenta</h1>
+  <div class="grid g2" style="margin-top:14px"><div class="card pad" style="display:flex;gap:16px;align-items:center"><span class="avatar" style="width:64px;height:64px;font-size:26px">${initials(ME.name)}</span>
+   <div><h2>${ME.name}</h2><div class="muted">${ME.shop||"Taller sin nombre"} · ${ME.country}</div><div class="muted">${ME.email}</div></div></div>
+   <div class="card pad"><h3>Tu actividad</h3><table class="t" style="margin-top:10px"><tr><td>Vehículos agregados</td><td><b>${UD.mine.length}</b></td></tr><tr><td>Vehículos recientes</td><td><b>${UD.recent.length}</b></td></tr><tr><td>Notas guardadas</td><td><b>${Object.values(UD.notes).filter(Boolean).length}</b></td></tr></table></div></div>
+  <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-ghost" onclick="logout()">Cerrar sesión</button></div>
+  <p class="note">Tu cuenta y tus datos se guardan en este dispositivo y navegador.</p>`,"cuenta","#/perfil",[["Mi cuenta",""]]);
+}
+function pPronto(p){
+  show(`<div class="card pad" style="max-width:640px;margin-top:20px"><h1 style="font-size:32px">${p[1]||"Sección"}</h1><p class="muted">Esta sección se incluye en la versión completa del sistema, con diagramas interactivos y procedimientos como los de Distribución.</p><a class="btn btn-primary" href="#/sistema/distribucion">Ver la sección de Distribución</a></div>`,"","",[[p[1]||"Sección",""]]);
+}
+
+/* ---------- arte de acceso ---------- */
+(function(){const a=$("#authArt");a.innerHTML=`<path d="${gearPath(470,250,210,30)}" fill="none" stroke="#FF6B1A" stroke-width="3"/><circle cx="470" cy="250" r="80" fill="none" stroke="#FF6B1A" stroke-width="2"/>
+<path d="${gearPath(200,480,120,18)}" fill="none" stroke="#3E6AA8" stroke-width="2.5"/><circle cx="200" cy="480" r="44" fill="none" stroke="#3E6AA8" stroke-width="2"/>
+<path d="${gearPath(470,660,80,13)}" fill="none" stroke="#2C4B78" stroke-width="2"/>`})();
+
+/* ---------- inicio ---------- */
+if(LS.get("emp_theme")==="dark")document.documentElement.dataset.theme="dark";
+const s=LS.get("emp_session",null);
+if(s&&users()[s])start(s);else $("#auth").classList.remove("hidden");
+</script>
+</body>
+</html>
